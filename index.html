@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Việc của tôi</title>
+<meta name="referrer" content="no-referrer">
+<!--
+  index.html — Bảng việc (Telegram Mini App) chạy trên trang riêng (GitHub Pages). File này được sinh từ Dashboard.html.
+  Không chứa khóa hay dữ liệu: khóa (k) và link Apps Script (a) nằm trong link mà bot gửi.
+-->
+<style>
+  :root {
+    /* Màu hệ thống kiểu iOS (sáng). Mở trong Telegram thì bị ghi đè bằng theme Telegram. */
+    --page: #f2f2f7; --section: #ffffff; --text: #000000; --hint: #8e8e93; --sub: #6c6c70;
+    --accent: #007aff; --accent-text: #ffffff; --sep: rgba(60,60,67,.16); --wash: rgba(118,118,128,.12);
+    --header-text: #6c6c70; --destructive: #ff3b30;
+    --event: #007aff; --task: #ff9500; --critical: #ff3b30; --person: #7d5bd0;
+    --good: #34c759; --good-text: #1d8a3b; --warning: #ff9500;
+    --series-1: #2a78d6; --series-2: #eb6834; --grid: #e1e0d9; --axis: #c3c2b7;
+    --shadow: 0 1px 2px rgba(0,0,0,.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --page: #000000; --section: #1c1c1e; --text: #ffffff; --hint: #8e8e93; --sub: #aeaeb2;
+      --accent: #0a84ff; --sep: rgba(84,84,88,.55); --wash: rgba(118,118,128,.24); --header-text: #8e8e93;
+      --event: #0a84ff; --task: #ff9f0a; --critical: #ff453a; --person: #a78bfa; --good: #30d158; --good-text: #30d158;
+      --series-1: #3987e5; --series-2: #d95926; --grid: #2c2c2a; --axis: #383835; --shadow: none;
+    }
+  }
+  :root[data-theme="dark"] {
+    --event: #0a84ff; --task: #ff9f0a; --critical: #ff453a; --person: #a78bfa; --good: #30d158; --good-text: #30d158;
+    --series-1: #3987e5; --series-2: #d95926; --grid: #2c2c2a; --axis: #383835; --wash: rgba(118,118,128,.24); --shadow: none;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: var(--page); color: var(--text); }
+  body { font: 16px/1.35 -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased; letter-spacing: 0; }
+  button, input { font: inherit; color: inherit; letter-spacing: inherit; }
+  .app { max-width: 640px; margin: 0 auto; padding-bottom: 40px; }
+  svg.i { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+  /* Tiêu đề lớn (cuộn đi như iOS) + thanh phân đoạn dính trên cùng */
+  .head { padding: 18px 20px 6px; display: flex; align-items: flex-end; gap: 12px; }
+  .head .tt { flex: 1; min-width: 0; }
+  .head h1 { margin: 0; font-size: 30px; line-height: 1.1; font-weight: 600; letter-spacing: -.02em; }
+  .head .sub { margin-top: 4px; font-size: 14px; color: var(--hint); }
+  .icon-btn { width: 40px; height: 40px; border-radius: 50%; border: 0; background: var(--section); color: var(--accent);
+    display: grid; place-items: center; cursor: pointer; font-size: 19px; box-shadow: var(--shadow); flex: none; }
+  .icon-btn:active { background: var(--wash); }
+  .icon-btn:disabled { opacity: .45; }
+  .top { position: sticky; top: 0; z-index: 5; padding: 8px 16px 10px; background: color-mix(in srgb, var(--page) 88%, transparent);
+    -webkit-backdrop-filter: saturate(1.8) blur(14px); backdrop-filter: saturate(1.8) blur(14px); }
+  .tabs { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--wash); border-radius: 9px; padding: 2px; }
+  .tabs button { border: 0; background: transparent; padding: 7px 0; border-radius: 7px; font-size: 14px; font-weight: 400; cursor: pointer; color: var(--text); min-height: 32px; }
+  .tabs button[aria-selected="true"] { background: var(--section); font-weight: 500; box-shadow: 0 1px 3px rgba(0,0,0,.14), 0 0 0 .5px rgba(0,0,0,.05); }
+  :root[data-theme="dark"] .tabs button[aria-selected="true"] { background: rgba(255,255,255,.16); box-shadow: none; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tabs button[aria-selected="true"] { background: rgba(255,255,255,.16); box-shadow: none; } }
+
+  /* Dải tóm tắt: chỉ hiện mục có số khác 0 */
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; padding: 6px 16px 0; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 16px; font-size: 14px; font-weight: 400;
+    background: var(--section); box-shadow: var(--shadow); color: var(--sub); }
+  .pill b { font-size: 15px; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
+  .pill.crit { background: color-mix(in srgb, var(--critical) 13%, var(--section)); color: var(--critical); } .pill.crit b { color: var(--critical); }
+  .pill.warn { background: color-mix(in srgb, var(--warning) 15%, var(--section)); color: color-mix(in srgb, var(--warning) 80%, var(--text)); }
+
+  /* Ô tóm tắt (tab Thống kê) */
+  .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 4px 16px 0; }
+  .stat { background: var(--section); border-radius: 14px; padding: 14px 14px 12px; box-shadow: var(--shadow); }
+  .stat .v { font-size: 30px; font-weight: 600; line-height: 1.05; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  .stat .l { font-size: 14px; color: var(--sub); margin-top: 4px; display: flex; gap: 5px; align-items: center; }
+  .stat .d { font-size: 12.5px; color: var(--hint); margin-top: 3px; }
+  .stat .d.up-good { color: var(--good-text); }
+
+  /* Khối ngày / nhóm */
+  .sec-h { display: flex; align-items: baseline; gap: 8px; padding: 22px 20px 8px; }
+  .sec-h .nm { font-size: 21px; font-weight: 600; letter-spacing: -.015em; }
+  .sec-h .dt { font-size: 15px; color: var(--hint); }
+  .sec-h .cnt { font-size: 15px; color: var(--hint); }
+  .sec-h .ico { align-self: center; }
+  .sec-h.crit .nm { color: var(--critical); }
+  .sec-h.small { padding-top: 18px; } .sec-h.small .nm { font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: .03em; color: var(--header-text); }
+  .sec { background: var(--section); border-radius: 14px; margin: 0 16px; overflow: hidden; box-shadow: var(--shadow); }
+  .sec-f { font-size: 13px; color: var(--hint); padding: 8px 22px 0; }
+
+  /* Một dòng việc */
+  .item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; min-height: 56px; position: relative; }
+  .item + .item::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; border-top: .5px solid var(--sep); }
+  .item .lead { width: 30px; flex: none; display: grid; place-items: center; }
+  .item .body { flex: 1; min-width: 0; }
+  .item .t { overflow-wrap: anywhere; font-weight: 400; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+  .item .s { font-size: 13.5px; color: var(--hint); margin-top: 2px; overflow-wrap: anywhere; }
+  .item .tail { flex: none; font-size: 13.5px; color: var(--hint); text-align: right; font-variant-numeric: tabular-nums; }
+  a.item { color: inherit; text-decoration: none; cursor: pointer; }
+  a.item:active, .item.tap:active { background: var(--wash); }
+  .live { color: var(--critical); font-weight: 500; }
+  .empty { padding: 16px; color: var(--hint); font-size: 15px; }
+  .tile { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; color: #fff; font-size: 17px; background: var(--hint); }
+  .tile.event { background: var(--event); } .tile.task { background: var(--task); } .tile.done { background: var(--good); }
+  .tile.person { background: var(--person); } .tile.draft { background: var(--hint); } .tile.note { background: #5e5ce6; } .tile.crit { background: var(--critical); }
+
+  /* Dòng lịch/việc trong "Tuần này": giờ bên trái · vạch màu · nội dung · nút xong */
+  .row { padding: 12px 6px 12px 16px; gap: 10px; align-items: stretch; min-height: 64px; }
+  .row .when { width: 50px; flex: none; display: flex; flex-direction: column; justify-content: center; font-variant-numeric: tabular-nums; }
+  .row .when .a { font-size: 16px; font-weight: 500; line-height: 1.2; }
+  .row .when .b { font-size: 13px; color: var(--hint); line-height: 1.25; margin-top: 1px; }
+  .row .when .a.sm { font-size: 12.5px; font-weight: 400; color: var(--hint); white-space: nowrap; }
+  .row .when .a.late { color: var(--critical); font-size: 14px; }
+  .row .bar { width: 4px; border-radius: 2px; flex: none; background: var(--event); }
+  .row.task .bar { background: var(--task); }
+  .row.over .bar { background: var(--critical); }
+  .row .main { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+  .row .ttl { font-weight: 400; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+  .row.open .ttl { -webkit-line-clamp: unset; line-clamp: unset; }
+  .row .meta { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; margin-top: 3px; font-size: 13.5px; color: var(--hint); }
+  .row .meta .late { color: var(--critical); }
+  .who { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px 0 6px; border-radius: 11px; font-size: 13px; font-weight: 500;
+    background: color-mix(in srgb, var(--person) 14%, transparent); color: var(--person); max-width: 100%; }
+  .who .i { font-size: 13px; }
+  .row .act { width: 48px; flex: none; display: grid; place-items: center; }
+  .row .act.none { width: 10px; }
+  .meta:empty { display: none; }
+  .item .act { width: 44px; margin-right: -8px; display: grid; place-items: center; flex: none; }
+  .row .act { margin-right: 0; }
+
+  .today-empty { display: flex; align-items: center; gap: 12px; padding: 18px 16px; color: var(--sub); font-size: 15px; }
+  .today-empty .tile { background: var(--good); border-radius: 50%; width: 34px; height: 34px; font-size: 18px; }
+  .quiet { margin: 14px 20px 0; font-size: 13.5px; color: var(--hint); line-height: 1.5; }
+
+  /* Vòng tròn đánh dấu xong — chạm 1 lần hỏi lại, chạm lần 2 xác nhận. Vùng chạm 44px. */
+  .chk { width: 44px; height: 44px; border-radius: 50%; border: 0; background: transparent; padding: 0; cursor: pointer; display: grid; place-items: center; position: relative; color: transparent; }
+  .chk::before { content: ""; width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--hint); transition: all .15s; position: absolute; }
+  .chk svg { position: relative; width: 15px; height: 15px; stroke-width: 3.2; }
+  .chk.armed { color: #fff; } .chk.armed::before { border-color: var(--good); background: var(--good); }
+  .chk:disabled { opacity: .5; }
+  .confirm-hint { color: var(--good-text); font-size: 13px; font-weight: 500; }
+
+  /* Huy hiệu trạng thái: luôn có biểu tượng + chữ, không dùng màu đơn thuần */
+  .ico { display: inline-grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; font-size: 10px; font-weight: 600; color: #fff; flex: none; }
+  .ico-critical { background: var(--critical); } .ico-good { background: var(--good); } .ico-warning { background: var(--warning); color: #0b0b0b; }
+  .badge { display: inline-flex; gap: 4px; align-items: center; font-size: 13px; color: var(--sub); white-space: nowrap; }
+
+  /* Bộ lọc dạng chip + ô tìm */
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding: 4px 16px 2px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip { flex: none; border: 0; background: var(--section); color: var(--text); border-radius: 18px; height: 34px; padding: 0 14px; font-size: 14px; font-weight: 400; cursor: pointer; box-shadow: var(--shadow); }
+  .chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-text); font-weight: 500; }
+  .search { margin: 6px 16px 10px; display: flex; align-items: center; gap: 8px; background: var(--wash); border-radius: 11px; padding: 0 10px; color: var(--hint); }
+  .search input { border: 0; outline: 0; background: transparent; padding: 10px 0; flex: 1; min-width: 0; color: var(--text); }
+  .more { display: block; width: calc(100% - 32px); margin: 12px 16px 0; border: 0; background: var(--section); color: var(--accent); border-radius: 14px; padding: 14px; cursor: pointer; font-weight: 400; box-shadow: var(--shadow); }
+
+  /* Biểu đồ */
+  .chart { padding: 14px 16px 12px; }
+  .chart h3 { margin: 0; font-size: 16px; font-weight: 500; }
+  .chart .cap { font-size: 13px; color: var(--hint); margin: 2px 0 8px; }
+  .legend { display: flex; gap: 14px; font-size: 13px; color: var(--sub); margin-bottom: 4px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .key-line { width: 14px; height: 2px; border-radius: 1px; display: inline-block; }
+  svg text { font-family: inherit; }
+  .gridline { stroke: var(--grid); stroke-width: 1; } .axisline { stroke: var(--axis); stroke-width: 1; }
+  .ticklbl { fill: var(--hint); font-size: 11px; font-variant-numeric: tabular-nums; }
+  .endlbl { fill: var(--sub); font-size: 11.5px; font-weight: 500; }
+  .cols { display: grid; grid-template-columns: repeat(7, 1fr); align-items: end; height: 140px; gap: 4px; border-bottom: 1px solid var(--axis); }
+  .col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+  .col .v { font-size: 11.5px; color: var(--sub); font-variant-numeric: tabular-nums; margin-bottom: 3px; }
+  .col .bar { width: min(24px, 70%); background: var(--series-1); border-radius: 4px 4px 0 0; }
+  .col-lbls { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; font-size: 11.5px; color: var(--hint); text-align: center; margin-top: 4px; }
+  .hbar-row { display: grid; grid-template-columns: minmax(80px, 36%) 1fr 28px; gap: 8px; align-items: center; padding: 5px 0; font-size: 14px; }
+  .hbar-row .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--sub); }
+  .hbar { height: 14px; background: var(--series-1); border-radius: 0 4px 4px 0; min-width: 2px; }
+  .hbar-row .n { text-align: right; font-variant-numeric: tabular-nums; }
+  details.data { margin-top: 8px; font-size: 13px; color: var(--sub); }
+  details.data summary { cursor: pointer; color: var(--accent); }
+  details.data table { border-collapse: collapse; width: 100%; margin-top: 4px; }
+  details.data td, details.data th { padding: 4px 6px; border-bottom: .5px solid var(--sep); text-align: left; font-weight: 400; }
+  details.data .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .seg { display: flex; justify-content: center; padding: 4px 16px 0; }
+  .seg .tabs { width: 100%; max-width: 340px; }
+
+  .tip { position: fixed; z-index: 20; pointer-events: none; background: var(--section); color: var(--text); border-radius: 10px;
+    padding: 8px 10px; font-size: 12.5px; box-shadow: 0 4px 18px rgba(0,0,0,.18); min-width: 110px; }
+  .tip .h { color: var(--sub); margin-bottom: 3px; }
+  .tip .r { display: flex; align-items: center; gap: 8px; }
+  .tip .r b { font-variant-numeric: tabular-nums; min-width: 20px; }
+  .tip .r span { color: var(--sub); }
+  .toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); background: rgba(40,40,42,.92); color: #fff;
+    padding: 11px 18px; border-radius: 22px; font-size: 14.5px; font-weight: 400; z-index: 30; white-space: nowrap; box-shadow: 0 6px 24px rgba(0,0,0,.25); }
+  .busy { opacity: .55; pointer-events: none; transition: opacity .15s; }
+  .warn { margin: 12px 16px 0; padding: 12px 14px; border-radius: 14px; background: var(--section); font-size: 13.5px; color: var(--sub); }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head">
+    <div class="tt"><h1>Việc của tôi</h1><div class="sub" id="sub"></div></div>
+    <button class="icon-btn" id="btnRefresh" type="button" aria-label="Làm mới"></button>
+  </header>
+  <div class="top">
+    <div class="tabs" role="tablist">
+      <button type="button" role="tab" data-tab="week" aria-selected="true">Tuần này</button>
+      <button type="button" role="tab" data-tab="stats" aria-selected="false">Thống kê</button>
+      <button type="button" role="tab" data-tab="all" aria-selected="false">Tất cả</button>
+    </div>
+  </div>
+  <main id="main"></main>
+</div>
+<div class="tip" id="tip" role="tooltip" hidden></div>
+
+<script>
+const _P = new URLSearchParams(location.search);
+const KEY = _P.get('k') || '', API = _P.get('a') || '';   // khóa + link /exec do bot gắn vào link mở trang
+let DATA = API ? loadCache() : null;                                  // hiện ngay bản lần trước, rồi tải số liệu mới
+
+// ============================================================ tiện ích
+const DAY = 86400000, WD = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+const UI = { tab: 'week', range: 30, filter: 'ACTIVE', q: '', limit: 40 };
+const pad = n => (n < 10 ? '0' : '') + n;
+const off = () => DATA.tzOffsetMin * 60000;
+const dayIdx = ms => Math.floor((ms + off()) / DAY);                 // số ngày theo giờ VN
+const dayDate = idx => new Date(idx * DAY);                           // đọc bằng getUTC*
+const fmtDay = idx => { const d = dayDate(idx); return WD[d.getUTCDay()] + ' ' + pad(d.getUTCDate()) + '/' + pad(d.getUTCMonth() + 1); };
+const fmtDT = ms => { const d = new Date(ms + off()); return pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes()) + ' ' + fmtDay(dayIdx(ms)); };
+const nf = n => Number(n).toLocaleString('vi-VN');
+
+function el(tag, props, ...kids) {
+  const e = document.createElement(tag);
+  if (props) for (const k in props) {
+    const v = props[k];
+    if (v == null || v === false) continue;
+    if (k === 'class') e.className = v;
+    else if (k === 'text') e.textContent = v;
+    else if (k === 'style') e.style.cssText = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v);
+  }
+  kids.flat().forEach(c => { if (c == null || c === false || c === '') return; e.appendChild(typeof c === 'string' || typeof c === 'number' ? document.createTextNode(String(c)) : c); });
+  return e;
+}
+function sv(tag, attrs) { const e = document.createElementNS('http://www.w3.org/2000/svg', tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; }
+const ico = (kind, ch) => el('span', { class: 'ico ico-' + kind, 'aria-hidden': 'true', text: ch });
+/** Bộ biểu tượng nét mảnh (kiểu SF Symbols) — thay cho emoji để giao diện đồng nhất. */
+const PATHS = {
+  cal: '<rect x="4" y="5" width="16" height="15" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+  task: '<rect x="4" y="4" width="16" height="16" rx="4"/><path d="m8.5 12.5 2.5 2.5 4.5-5"/>',
+  done: '<circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.8 2.8L16 9.5"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  note: '<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/>',
+  person: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>',
+  refresh: '<path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v5h-5"/>',
+  check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  chev: '<path d="m9 6 6 6-6 6"/>',
+  search: '<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/>',
+  alert: '<circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.5"/>',
+};
+function svgi(name) { const x = sv('svg', { class: 'i', viewBox: '0 0 24 24', 'aria-hidden': 'true' }); x.innerHTML = PATHS[name] || ''; return x; }
+const tile = (name, cls) => el('span', { class: 'tile ' + (cls || ''), 'aria-hidden': 'true' }, svgi(name));
+
+const tip = document.getElementById('tip');
+function showTip(ev, head, rows) {
+  tip.replaceChildren(el('div', { class: 'h', text: head }), ...rows.map(r => el('div', { class: 'r' },
+    r.color ? el('span', { class: 'key-line', style: 'background:' + r.color }) : null, el('b', { text: String(r.value) }), el('span', { text: r.label }))));
+  tip.hidden = false;
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  let x = ev.clientX + 12, y = ev.clientY - h - 12;
+  if (x + w > innerWidth - 8) x = Math.max(8, ev.clientX - w - 12);
+  if (y < 8) y = ev.clientY + 16;
+  tip.style.left = x + 'px'; tip.style.top = y + 'px';
+}
+const hideTip = () => { tip.hidden = true; };
+function toast(msg) { const t = el('div', { class: 'toast', text: msg }); document.body.appendChild(t); setTimeout(() => t.remove(), 2200); }
+
+// ============================================================ theme Telegram
+/** Telegram truyền màu theme qua #tgWebAppThemeParams trên URL; trang Apps Script đọc bằng google.script.url. */
+function applyTelegramTheme(hash) {
+  try {
+    const m = /tgWebAppThemeParams=([^&]+)/.exec(hash || '');
+    if (m) applyThemeParams(JSON.parse(decodeURIComponent(m[1])));
+  } catch (e) { /* không có theme → dùng màu mặc định */ }
+}
+function applyThemeParams(p) {
+  try {
+    const set = (v, c) => { if (c) document.documentElement.style.setProperty(v, c); };
+    set('--page', p.secondary_bg_color || p.bg_color);
+    set('--section', p.section_bg_color || p.bg_color);
+    set('--text', p.text_color);
+    set('--hint', p.hint_color);
+    set('--sub', p.subtitle_text_color || p.hint_color);
+    set('--accent', p.accent_text_color || p.button_color || p.link_color);
+    set('--accent-text', p.button_text_color);
+    set('--sep', p.section_separator_color);
+    set('--header-text', p.section_header_text_color || p.hint_color);
+    set('--destructive', p.destructive_text_color);
+    // Nền tối → dùng bước màu dữ liệu cho nền tối
+    const bg = (p.bg_color || '#ffffff').replace('#', '');
+    const lum = (0.299 * parseInt(bg.substr(0, 2), 16) + 0.587 * parseInt(bg.substr(2, 2), 16) + 0.114 * parseInt(bg.substr(4, 2), 16)) / 255;
+    document.documentElement.setAttribute('data-theme', lum < 0.5 ? 'dark' : 'light');
+    if (UI.tab === 'stats' && DATA) render();               // vẽ lại biểu đồ với màu mới
+  } catch (e) { /* bỏ qua */ }
+}
+
+// ============================================================ gọi server
+const hasGAS = () => typeof google !== 'undefined' && google.script && google.script.run;
+/** Hai chế độ: (1) chạy trong Apps Script → google.script.run; (2) trang riêng (GitHub Pages) → fetch tới link /exec (API). */
+const FETCH_MODE = typeof API !== 'undefined' && !!API;
+const canCall = () => FETCH_MODE || hasGAS();
+let LOADERR = '';
+function saveCache(d) { if (FETCH_MODE) try { localStorage.setItem('dash_cache_v1', JSON.stringify(d)); } catch (e) { /* bỏ qua */ } }
+function loadCache() { try { return JSON.parse(localStorage.getItem('dash_cache_v1') || 'null'); } catch (e) { return null; } }
+/** op 'data' = lấy số liệu; op 'done' = đánh dấu xong (ref). Trả về Promise<DATA mới>. */
+function server(op, ref) {
+  if (FETCH_MODE) {
+    const u = API + (API.indexOf('?') < 0 ? '?' : '&') + 'view=api&op=' + op + '&key=' + encodeURIComponent(KEY) +
+      (ref ? '&ref=' + encodeURIComponent(ref) : '') + '&_=' + Date.now();
+    return fetch(u, { redirect: 'follow' }).then(r => r.json()).then(j => {
+      if (!j || !j.ok) throw new Error((j && j.error) || 'Lỗi máy chủ');
+      saveCache(j.data); return j.data;
+    });
+  }
+  return new Promise((res, rej) => {
+    const r = google.script.run.withSuccessHandler(s => res(JSON.parse(s))).withFailureHandler(rej);
+    if (op === 'done') r.dashMarkDone(KEY, ref); else r.dashData(KEY);
+  });
+}
+const errMsg = e => (e && e.message) ? e.message : String(e);
+function setBusy(b) { document.getElementById('main').classList.toggle('busy', b); document.getElementById('btnRefresh').disabled = b; }
+function refresh(silent) {
+  if (!canCall()) return toast('Bản xem thử');
+  if (DATA) setBusy(true);
+  return server('data')
+    .then(d => { DATA = d; LOADERR = ''; setBusy(false); render(); if (!silent) toast('Đã cập nhật'); })
+    .catch(e => { setBusy(false); if (!DATA) { LOADERR = errMsg(e); render(); } else if (!silent) toast('Lỗi: ' + errMsg(e)); });
+}
+/** Vòng tròn ✓: chạm 1 lần → chuyển xanh "Xong?", chạm lần 2 trong 3 giây → đánh dấu xong. */
+function check(ref, hintHost) {
+  const b = el('button', { class: 'chk', type: 'button', 'aria-label': 'Đánh dấu xong' }, svgi('check'));
+  let armed = null, hint = null;
+  const disarm = () => { armed = null; b.classList.remove('armed'); if (hint) { hint.remove(); hint = null; } };
+  b.addEventListener('click', ev => {
+    ev.stopPropagation();
+    if (!armed) {
+      b.classList.add('armed');
+      if (hintHost) { hint = el('span', { class: 'confirm-hint', text: ' · chạm lần nữa để xong' }); hintHost.appendChild(hint); }
+      armed = setTimeout(disarm, 3000);
+      return;
+    }
+    clearTimeout(armed);
+    if (!canCall()) { disarm(); return toast('Bản xem thử'); }
+    b.disabled = true; setBusy(true);
+    server('done', ref)
+      .then(d => { DATA = d; setBusy(false); render(); toast('✅ Đã xong'); })
+      .catch(e => { setBusy(false); b.disabled = false; disarm(); toast('Lỗi: ' + errMsg(e)); });
+  });
+  return b;
+}
+
+// ============================================================ quy tắc trạng thái
+/** Lịch đã kết thúc: bot không tự đóng lịch nên không tính là việc đang mở. */
+function isPastEvent(i) {
+  if (i.ty !== 'EVENT' || i.st !== 'OPEN' || !i.d) return false;
+  return (i.e || (i.ht ? i.d + 3600000 : (dayIdx(i.d) + 1) * DAY - off())) < DATA.now;
+}
+const isActiveOpen = i => i.st === 'OPEN' && !isPastEvent(i);
+const who = i => i.a ? 'Giao ' + i.a + ' · ' : '';                     // việc đã giao cho nhân viên
+function isOverdue(i) {
+  if (i.st !== 'OPEN' || i.ty !== 'TASK' || !i.d) return false;
+  return i.ht ? i.d < DATA.now : dayIdx(i.d) < dayIdx(DATA.now);
+}
+
+// ============================================================ dòng danh sách
+/** Một dòng: [ô biểu tượng] [tiêu đề + dòng phụ] [đuôi] [nút xong] */
+function item(opts) {
+  const sub = opts.sub ? el('div', { class: 's', text: opts.sub }) : null;
+  const subHost = sub || el('div', { class: 's' });
+  return el('div', { class: 'item' },
+    opts.tile ? el('div', { class: 'lead' }, tile(opts.tile[0], opts.tile[1])) : null,
+    el('div', { class: 'body' }, el('div', { class: 't', text: opts.title }), sub || (opts.ref ? subHost : null)),
+    opts.tail ? el('div', { class: 'tail' }, opts.tail) : null,
+    opts.ref ? el('div', { class: 'act' }, check(opts.ref, subHost)) : null);
+}
+/** Tiêu đề nhóm. cls 'small' = chữ nhỏ viết hoa (nhóm phụ); 'crit' = đỏ. */
+const secH = (label, cnt, icon, cls) => el('div', { class: 'sec-h ' + (cls || '') }, icon || null, el('span', { class: 'nm', text: label }),
+  cnt != null ? el('span', { class: 'cnt', text: String(cnt) }) : null);
+
+// ============================================================ TAB 1: Tuần này
+const WDN = { CN: 'Chủ nhật', T2: 'Thứ Hai', T3: 'Thứ Ba', T4: 'Thứ Tư', T5: 'Thứ Năm', T6: 'Thứ Sáu', T7: 'Thứ Bảy' };
+/** Tiêu đề do server ghép dạng "👤 Huy · việc" → tách tên người để hiện thành nhãn riêng. */
+function parseWho(title) { const m = /^👤\s*(.+?)\s·\s([\s\S]*)$/.exec(title); return m ? { who: m[1], title: m[2] } : { who: '', title: title }; }
+
+/** Dòng lịch/việc: [giờ] [vạch màu] [tiêu đề (tối đa 2 dòng, chạm để mở rộng) + nhãn] [✓]. */
+function weekRow(r, over) {
+  const w = parseWho(r.title), isEv = r.kind === 'event';
+  let a, b = '', cls = '';
+  let note = (r.note || '').replace(/^\(|\)$/g, '');
+  if (over) {
+    a = 'Trễ'; cls = 'late';
+    const md = /(\d{2}\/\d{2})/.exec(note), mt = /(\d{1,2}:\d{2})/.exec(note);
+    b = md ? md[1] : '';
+    note = /Google Tasks/i.test(note) ? 'Google Tasks' : (mt ? 'Hạn ' + mt[1] : '');
+  }
+  else if (isEv && /–/.test(r.time || '')) { const t = r.time.split('–'); a = t[0]; b = t[1]; }
+  else if (r.time && r.time !== 'Cả ngày') { a = r.time; b = 'Hạn'; }
+  else { a = 'Cả ngày'; cls = 'sm'; }
+  if (!over && /^trong ngày$/i.test(note)) note = '';
+  const live = /đang diễn ra/i.test(note);
+  const meta = el('div', { class: 'meta' },
+    w.who ? el('span', { class: 'who' }, svgi('person'), w.who) : null,
+    live ? el('span', { class: 'live', text: 'Đang diễn ra' }) : (note ? el('span', { class: over ? 'late' : '', text: note }) : null));
+  const row = el('div', { class: 'item row tap ' + (over ? 'over ' : '') + (isEv ? 'event' : 'task') },
+    el('div', { class: 'when' }, el('div', { class: 'a ' + cls, text: a }), b ? el('div', { class: 'b', text: b }) : null),
+    el('i', { class: 'bar' }),
+    el('div', { class: 'main' }, el('div', { class: 'ttl', text: w.title }), meta),
+    el('div', { class: 'act' + (r.ref ? '' : ' none') }, r.ref ? check(r.ref, meta) : null));
+  row.addEventListener('click', ev => { if (!ev.target.closest('.chk')) row.classList.toggle('open'); });
+  return row;
+}
+
+function renderWeek(main) {
+  const W = DATA.week, items = DATA.items, today = dayIdx(DATA.now);
+  const open = items.filter(isActiveOpen);
+  const dueToday = open.filter(i => i.ty === 'TASK' && i.d && dayIdx(i.d) === today && !isOverdue(i)).length;
+  const drafts = items.filter(i => i.st === 'DRAFT');
+  const nOver = W.overdue.length;
+
+  // Dải tóm tắt: chỉ hiện mục có việc (không chiếm chỗ bằng số 0)
+  const pills = [];
+  if (nOver) pills.push(el('span', { class: 'pill crit' }, el('b', { text: nf(nOver) }), 'quá hạn'));
+  if (dueToday) pills.push(el('span', { class: 'pill' }, el('b', { text: nf(dueToday) }), 'hạn nay'));
+  if (drafts.length) pills.push(el('span', { class: 'pill warn' }, el('b', { text: nf(drafts.length) }), 'nháp'));
+  if (pills.length) main.append(el('div', { class: 'pills' }, pills));
+
+  if (nOver) {
+    main.append(secH('Quá hạn', nOver, null, 'crit'), el('div', { class: 'sec' }, W.overdue.map(r => weekRow(r, true))));
+  }
+  const emptyDays = [];
+  W.days.forEach((d, k) => {
+    const parts = d.label.replace('Hôm nay · ', '').split(' ');
+    const wd = parts[0], dm = parts[1] || '';
+    if (!d.rows.length && k > 0) { emptyDays.push(wd + ' ' + dm); return; }
+    const name = k === 0 ? 'Hôm nay' : k === 1 ? 'Ngày mai' : (WDN[wd] || wd);
+    const dateTxt = (k < 2 ? (WDN[wd] || wd) + ', ' : '') + dm;
+    main.append(el('div', { class: 'sec-h' }, el('span', { class: 'nm', text: name }), el('span', { class: 'dt', text: dateTxt }),
+      d.rows.length ? el('span', { class: 'cnt', text: '· ' + d.rows.length }) : null));
+    main.append(d.rows.length ? el('div', { class: 'sec' }, d.rows.map(r => weekRow(r, false)))
+      : el('div', { class: 'sec' }, el('div', { class: 'today-empty' }, tile('check', 'done'), 'Hôm nay không còn việc hay lịch nào.')));
+  });
+  const tail = [];
+  if (emptyDays.length) tail.push('Còn trống: ' + emptyDays.join(' · '));
+  tail.push(W.range.replace(' → ', ' – ') + ' · ' + W.nEvents + ' lịch · ' + W.nTasks + ' việc');
+  main.append(el('div', { class: 'quiet', text: tail.join('\n'), style: 'white-space:pre-line' }));
+
+  const noDue = open.filter(i => !i.d).sort((a, b) => (b.c || 0) - (a.c || 0));
+  if (noDue.length) {
+    main.append(secH('Chưa có hạn', noDue.length, null, 'small'),
+      el('div', { class: 'sec' }, noDue.slice(0, 10).map(i => item({ ref: i.id, title: i.t, sub: who(i) + i.src + (i.c ? ' · nhận ' + fmtDT(i.c) : '') }))),
+      el('div', { class: 'sec-f', text: (noDue.length > 10 ? '… và ' + (noDue.length - 10) + ' việc khác (xem tab Tất cả). ' : '') + 'Đặt hạn: reply thẻ việc trong chat, ví dụ "16h thứ 5".' }));
+  }
+  if (drafts.length) {
+    main.append(secH('Nháp chờ chốt', drafts.length, null, 'small'),
+      el('div', { class: 'sec' }, drafts.slice(-10).reverse().map(i => item({ tile: ['clock', 'draft'], title: i.t, sub: who(i) + (i.dl || 'Chưa có hạn') + ' · ' + i.src }))),
+      el('div', { class: 'sec-f', text: 'Nháp chưa được nhắc. Bấm ✅ Chốt trên thẻ nháp hoặc gõ /nhap.' }));
+  }
+  const notes = DATA.notes || [];
+  if (notes.length) {
+    main.append(secH('Biên bản họp', null, null, 'small'), el('div', { class: 'sec' }, notes.map(n => el('a', { class: 'item', href: n.url, target: '_blank', rel: 'noopener noreferrer' },
+      el('div', { class: 'lead' }, tile('note', 'note')),
+      el('div', { class: 'body' }, el('div', { class: 't', text: n.title }),
+        el('div', { class: 's' }, n.open ? el('span', { class: 'live', text: '● Đang ghi · ' }) : null,
+          [n.when, n.count + ' mục', n.tasks ? n.tasks + ' việc phát sinh' : ''].filter(Boolean).join(' · '))),
+      el('div', { class: 'tail' }, svgi('chev'))))),
+      el('div', { class: 'sec-f', text: 'Ghi biên bản mới: gõ /note trong chat.' }));
+  }
+  (W.warn || []).forEach(s => main.append(el('div', { class: 'warn', text: '⚠️ ' + s })));
+}
+
+// ============================================================ TAB 2: Thống kê
+function renderStats(main) {
+  const items = DATA.items, today = dayIdx(DATA.now), R = UI.range;
+  const start = today - R + 1, pStart = start - R;
+  const inR = (ms, a, b) => { if (!ms) return false; const k = dayIdx(ms); return k >= a && k <= b; };
+  const created = items.filter(i => i.st !== 'CANCELLED' && inR(i.c, start, today));
+  const done = items.filter(i => i.st === 'DONE' && inR(i.dn, start, today));
+  const pCreated = items.filter(i => i.st !== 'CANCELLED' && inR(i.c, pStart, start - 1)).length;
+  const pDone = items.filter(i => i.st === 'DONE' && inR(i.dn, pStart, start - 1)).length;
+  const withDue = done.filter(i => i.ty === 'TASK' && i.d);
+  const onTime = withDue.filter(i => i.dn <= (i.ht ? i.d : (dayIdx(i.d) + 1) * DAY - off() - 1)).length;
+  const leads = done.filter(i => i.ty === 'TASK' && i.c && i.dn > i.c).map(i => (i.dn - i.c) / 3600000).sort((a, b) => a - b);
+  const median = leads.length ? (leads.length % 2 ? leads[(leads.length - 1) / 2] : (leads[leads.length / 2 - 1] + leads[leads.length / 2]) / 2) : null;
+
+  // Bộ lọc khoảng (phạm vi cho mọi số liệu bên dưới)
+  main.append(el('div', { class: 'seg' }, el('div', { class: 'tabs', role: 'group', 'aria-label': 'Khoảng thời gian' },
+    [7, 30, 90].map(n => el('button', { type: 'button', 'aria-selected': String(n === R), text: n + ' ngày', onclick: () => { UI.range = n; render(); } })))));
+
+  const delta = (cur, prev, upGood) => {
+    const d = cur - prev;
+    if (!d) return el('div', { class: 'd', text: 'bằng kỳ trước' });
+    return el('div', { class: 'd' + (upGood && d > 0 ? ' up-good' : ''), text: (d > 0 ? '▲ +' : '▼ ') + d + ' so với kỳ trước' });
+  };
+  main.append(el('div', { class: 'stats four', style: 'padding-top:12px' },
+    el('div', { class: 'stat' }, el('div', { class: 'v', text: nf(created.length) }), el('div', { class: 'l', text: 'Việc nhận vào' }), delta(created.length, pCreated, false)),
+    el('div', { class: 'stat' }, el('div', { class: 'v', text: nf(done.length) }), el('div', { class: 'l', text: 'Đã hoàn thành' }), delta(done.length, pDone, true)),
+    el('div', { class: 'stat' }, el('div', { class: 'v', text: withDue.length ? Math.round(onTime / withDue.length * 100) + '%' : '—' }),
+      el('div', { class: 'l', text: 'Xong đúng hạn' }), el('div', { class: 'd', text: withDue.length ? onTime + '/' + withDue.length + ' task có hạn' : 'chưa có dữ liệu' })),
+    el('div', { class: 'stat' }, el('div', { class: 'v', text: median == null ? '—' : fmtHours(median) }),
+      el('div', { class: 'l', text: 'Thời gian xử lý' }), el('div', { class: 'd', text: 'trung vị, nhận → xong' }))));
+
+  // Xu hướng
+  const bucket = R > 30 ? 7 : 1, nB = Math.ceil(R / bucket), labels = [], sC = [], sD = [];
+  for (let b = 0; b < nB; b++) {
+    const a = today - (nB - b) * bucket + 1, z = a + bucket - 1;
+    labels.push(bucket === 1 ? fmtDay(a) : fmtDay(a) + ' – ' + fmtDay(z));
+    sC.push(items.filter(i => i.st !== 'CANCELLED' && inR(i.c, a, z)).length);
+    sD.push(items.filter(i => i.st === 'DONE' && inR(i.dn, a, z)).length);
+  }
+  const trendHost = el('div');
+  const series = [{ name: 'Nhận vào', color: 'var(--series-1)', values: sC }, { name: 'Hoàn thành', color: 'var(--series-2)', values: sD }];
+  main.append(secH(bucket === 1 ? 'Theo ngày' : 'Theo tuần'), el('div', { class: 'sec' }, el('div', { class: 'chart' },
+    el('h3', { text: 'Nhận vào và hoàn thành' }), el('div', { class: 'cap', text: 'Số việc ' + (bucket === 1 ? 'mỗi ngày' : 'mỗi tuần') + ' · ' + R + ' ngày gần nhất' }),
+    trendHost, dataTable([bucket === 1 ? 'Ngày' : 'Tuần', 'Nhận', 'Xong'], labels.map((l, k) => [l, sC[k], sD[k]])))));
+
+  // Theo thứ
+  const wd = [0, 0, 0, 0, 0, 0, 0], wdL = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+  created.forEach(i => { wd[(dayDate(dayIdx(i.c)).getUTCDay() + 6) % 7]++; });
+  main.append(secH('Theo thứ'), el('div', { class: 'sec' }, el('div', { class: 'chart' },
+    el('h3', { text: 'Ngày nào nhận việc nhiều' }), el('div', { class: 'cap', text: 'Việc nhận vào theo thứ trong tuần' }),
+    columns(wdL, wd), dataTable(['Thứ', 'Việc'], wdL.map((l, k) => [l, wd[k]])))));
+
+  // Người giao
+  const by = {};
+  created.forEach(i => { by[i.src] = (by[i.src] || 0) + 1; });
+  let src = Object.keys(by).map(k => [k, by[k]]).sort((a, b) => b[1] - a[1]);
+  if (src.length > 6) { const rest = src.slice(5).reduce((s, x) => s + x[1], 0); src = src.slice(0, 5).concat([['Khác', rest]]); }
+  main.append(secH('Người giao việc'), el('div', { class: 'sec' }, el('div', { class: 'chart' },
+    el('h3', { text: 'Ai giao việc nhiều nhất' }), el('div', { class: 'cap', text: 'Theo người gửi tin gốc được forward' }),
+    src.length ? hbars(src) : el('div', { class: 'empty', style: 'padding:6px 0', text: 'Chưa có dữ liệu.' }),
+    dataTable(['Người giao', 'Việc'], src))));
+
+  // Việc đã giao cho nhân viên: đang làm / trễ (hiện tại) + xong & đúng hạn (trong khoảng đã chọn)
+  const staff = {};
+  items.forEach(i => { if (i.a && i.st !== 'CANCELLED') i.a.split(', ').forEach(n => { (staff[n] = staff[n] || []).push(i); }); });
+  const names = Object.keys(staff);
+  if (names.length) {
+    const rowsS = names.map(n => {
+      const L = staff[n];
+      const open = L.filter(isActiveOpen).length, late = L.filter(isOverdue).length;
+      const dn = L.filter(i => i.st === 'DONE' && inR(i.dn, start, today));
+      const dd = dn.filter(i => i.ty === 'TASK' && i.d), ot = dd.filter(i => i.dn <= (i.ht ? i.d : (dayIdx(i.d) + 1) * DAY - off() - 1)).length;
+      return { n, open, late, done: dn.length, rate: dd.length ? Math.round(ot / dd.length * 100) : null };
+    }).sort((a, b) => b.late - a.late || b.open - a.open || b.done - a.done);
+    main.append(secH('Việc đã giao', names.length + ' người'), el('div', { class: 'sec' }, rowsS.map(r => item({
+      tile: ['person', 'person'], title: r.n,
+      sub: [r.open + ' đang làm', r.done + ' xong trong ' + R + ' ngày', r.rate != null ? r.rate + '% đúng hạn' : ''].filter(Boolean).join(' · '),
+      tail: r.late ? el('span', { class: 'badge' }, ico('critical', '!'), r.late + ' trễ') : null }))),
+      el('div', { class: 'sec-f', text: 'Xem chi tiết: tab Tất cả → lọc "👤 Đã giao", hoặc gõ /giao trong chat.' }));
+  }
+  lineChart(trendHost, labels, series);
+}
+function fmtHours(h) {
+  if (h < 1) return Math.round(h * 60) + ' phút';
+  if (h < 48) return (Math.round(h * 10) / 10).toLocaleString('vi-VN') + ' giờ';
+  return (Math.round(h / 24 * 10) / 10).toLocaleString('vi-VN') + ' ngày';
+}
+function dataTable(head, rows) {
+  return el('details', { class: 'data' }, el('summary', { text: 'Xem số liệu' }),
+    el('table', {}, el('tr', {}, head.map((h, k) => el('th', { class: k ? 'num' : '', text: h }))),
+      rows.map(r => el('tr', {}, r.map((c, k) => el('td', { class: k ? 'num' : '', text: String(c) }))))));
+}
+function niceStep(max, n) {
+  const raw = Math.max(1, max / n), p = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / p;
+  return Math.max(1, (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * p);
+}
+/** Đường 2px, chấm cuối 8px có viền nền, crosshair + tooltip (kéo ngón tay trên biểu đồ). */
+function lineChart(host, labels, series) {
+  host.replaceChildren();
+  const W = Math.max(260, host.clientWidth || 340), H = 190, m = { l: 26, r: 24, t: 10, b: 22 };
+  const iw = W - m.l - m.r, ih = H - m.t - m.b, n = labels.length;
+  const vmax = Math.max(1, ...series.flatMap(s => s.values)), step = niceStep(vmax, 4), top = Math.ceil(vmax / step) * step;
+  const x = i => m.l + (n === 1 ? iw / 2 : i * iw / (n - 1)), y = v => m.t + ih - v / top * ih;
+  const s = sv('svg', { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: 'img', 'aria-label': 'Biểu đồ nhận vào và hoàn thành', style: 'touch-action:pan-y' });
+  for (let t = 0; t <= top; t += step) {
+    s.appendChild(sv('line', { class: t ? 'gridline' : 'axisline', x1: m.l, x2: W - m.r, y1: y(t), y2: y(t) }));
+    const tl = sv('text', { class: 'ticklbl', x: m.l - 6, y: y(t) + 3.5, 'text-anchor': 'end' }); tl.textContent = nf(t); s.appendChild(tl);
+  }
+  const every = Math.max(1, Math.ceil(n / 4));
+  labels.forEach((l, i) => {
+    if ((n - 1 - i) % every) return;
+    const tl = sv('text', { class: 'ticklbl', x: x(i), y: H - 6, 'text-anchor': i === n - 1 && n > 1 ? 'end' : (i === 0 ? 'start' : 'middle') });
+    tl.textContent = l.split(' – ')[0].replace(/^\S+ /, ''); s.appendChild(tl);
+  });
+  series.forEach(se => {
+    s.appendChild(sv('path', { d: se.values.map((v, i) => (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(v).toFixed(1)).join(' '),
+      fill: 'none', stroke: se.color, 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }));
+    s.appendChild(sv('circle', { cx: x(n - 1), cy: y(se.values[n - 1]), r: 4, fill: se.color, stroke: 'var(--section)', 'stroke-width': 2 }));
+  });
+  const ends = series.map(se => y(se.values[n - 1]));
+  if (Math.abs(ends[0] - ends[1]) >= 14) series.forEach((se, k) => {
+    const t = sv('text', { class: 'endlbl', x: x(n - 1) + 7, y: ends[k] + 4 }); t.textContent = nf(se.values[n - 1]); s.appendChild(t);
+  });
+  const cross = sv('line', { class: 'axisline', y1: m.t, y2: m.t + ih, visibility: 'hidden' });
+  const dots = series.map(se => sv('circle', { r: 4, fill: se.color, stroke: 'var(--section)', 'stroke-width': 2, visibility: 'hidden' }));
+  s.appendChild(cross); dots.forEach(c => s.appendChild(c));
+  const hit = sv('rect', { x: 0, y: 0, width: W, height: H, fill: 'transparent' });
+  const move = ev => {
+    const r = s.getBoundingClientRect(), px = (ev.clientX - r.left) * W / r.width;
+    const i = Math.max(0, Math.min(n - 1, Math.round(n === 1 ? 0 : (px - m.l) / iw * (n - 1))));
+    cross.setAttribute('x1', x(i)); cross.setAttribute('x2', x(i)); cross.setAttribute('visibility', 'visible');
+    dots.forEach((c, k) => { c.setAttribute('cx', x(i)); c.setAttribute('cy', y(series[k].values[i])); c.setAttribute('visibility', 'visible'); });
+    showTip(ev, labels[i], series.map(se => ({ color: se.color, value: nf(se.values[i]), label: se.name })));
+  };
+  const leave = () => { cross.setAttribute('visibility', 'hidden'); dots.forEach(c => c.setAttribute('visibility', 'hidden')); hideTip(); };
+  hit.addEventListener('pointerdown', move); hit.addEventListener('pointermove', move);
+  hit.addEventListener('pointerleave', leave); hit.addEventListener('pointerup', () => setTimeout(leave, 1200));
+  s.appendChild(hit);
+  host.append(el('div', { class: 'legend' }, series.map(se => el('span', {}, el('span', { class: 'key-line', style: 'background:' + se.color }), se.name))), s);
+}
+function columns(labels, values) {
+  const max = Math.max(1, ...values);
+  return el('div', {}, el('div', { class: 'cols', role: 'img', 'aria-label': labels.map((l, k) => l + ': ' + values[k]).join(', ') },
+    labels.map((l, k) => {
+      const c = el('div', { class: 'col' }, el('span', { class: 'v', text: values[k] ? String(values[k]) : '' }),
+        el('div', { class: 'bar', style: 'height:' + (values[k] ? Math.max(2, values[k] / max * 110) : 0) + 'px' }));
+      c.addEventListener('pointerenter', ev => showTip(ev, l, [{ value: values[k], label: 'việc nhận vào' }]));
+      c.addEventListener('pointerleave', hideTip);
+      return c;
+    })), el('div', { class: 'col-lbls' }, labels.map(l => el('span', { text: l }))));
+}
+function hbars(pairs) {
+  const max = Math.max(1, ...pairs.map(p => p[1]));
+  return el('div', {}, pairs.map(p => el('div', { class: 'hbar-row' }, el('span', { class: 'nm', text: p[0] }),
+    el('div', {}, el('div', { class: 'hbar', style: 'width:' + (p[1] / max * 100) + '%' })), el('span', { class: 'n', text: String(p[1]) }))));
+}
+
+// ============================================================ TAB 3: Tất cả
+const FILTERS = [['ACTIVE', 'Đang làm'], ['OVERDUE', 'Quá hạn'], ['DELEG', 'Đã giao'], ['DRAFT', 'Nháp'], ['DONE', 'Đã xong'], ['PAST', 'Lịch đã qua'], ['CANCELLED', 'Đã hủy'], ['', 'Tất cả']];
+function matchFilter(i) {
+  switch (UI.filter) {
+    case 'ACTIVE': return isActiveOpen(i) || i.st === 'DRAFT';
+    case 'OVERDUE': return isOverdue(i);
+    case 'DELEG': return !!i.a && (isActiveOpen(i) || i.st === 'DRAFT');
+    case 'PAST': return isPastEvent(i);
+    case '': return true;
+    default: return i.st === UI.filter;
+  }
+}
+function badge(i) {
+  if (isOverdue(i)) return el('span', { class: 'badge' }, ico('critical', '!'), 'Quá hạn');
+  if (i.st === 'DONE') return el('span', { class: 'badge' }, ico('good', '✓'), 'Xong');
+  if (i.st === 'DRAFT') return el('span', { class: 'badge' }, ico('warning', '!'), 'Nháp');
+  if (isPastEvent(i)) return el('span', { class: 'badge', text: 'Đã diễn ra' });
+  if (i.st === 'CANCELLED') return el('span', { class: 'badge', text: 'Đã hủy' });
+  return null;
+}
+function renderAll(main) {
+  const search = el('input', { type: 'search', placeholder: 'Tìm việc, người giao, nhân viên', value: UI.q, 'aria-label': 'Tìm việc' });
+  const listHost = el('div');
+  search.addEventListener('input', () => { UI.q = search.value; UI.limit = 40; drawList(); });
+  main.append(el('div', { class: 'search' }, svgi('search'), search),
+    el('div', { class: 'chips' }, FILTERS.map(f => el('button', { class: 'chip', type: 'button', 'aria-pressed': String(UI.filter === f[0]), text: f[1],
+      onclick: () => { UI.filter = f[0]; UI.limit = 40; render(); } }))), listHost);
+
+  const active = ['ACTIVE', 'OVERDUE', 'DELEG', 'DRAFT'].indexOf(UI.filter) >= 0;
+  const base = DATA.items.filter(matchFilter).sort(active ? (a, b) => (a.d || 9e15) - (b.d || 9e15) : (a, b) => (b.c || 0) - (a.c || 0));
+  function drawList() {
+    const q = UI.q.trim().toLowerCase();
+    const list = q ? base.filter(i => (i.t + ' ' + i.src + ' ' + (i.a || '')).toLowerCase().indexOf(q) >= 0) : base;
+    const shown = list.slice(0, UI.limit);
+    listHost.replaceChildren(...[secH(list.length + ' việc'),
+      list.length ? el('div', { class: 'sec' }, shown.map(i => item({
+        ref: isActiveOpen(i) ? i.id : null, tile: i.st === 'DONE' ? ['done', 'done'] : i.ty === 'EVENT' ? ['cal', 'event'] : ['task', 'task'],
+        title: i.t, sub: who(i) + [i.dl || 'Chưa có hạn', i.src].join(' · '), tail: badge(i) })))
+        : el('div', { class: 'sec' }, el('div', { class: 'empty', text: 'Không có việc phù hợp.' })),
+      list.length > shown.length ? el('button', { class: 'more', type: 'button', text: 'Xem thêm ' + (list.length - shown.length) + ' việc', onclick: () => { UI.limit += 40; drawList(); } }) : null].filter(Boolean));
+  }
+  drawList();
+}
+
+// ============================================================ khung chung
+function render() {
+  const main = document.getElementById('main');
+  if (!DATA) {                                              // chưa có số liệu (trang riêng, lần mở đầu)
+    document.getElementById('sub').textContent = '';
+    main.replaceChildren(el('div', { class: 'quiet', style: 'text-align:center;margin-top:40px' }, LOADERR ? ['⚠️ ' + LOADERR, el('div', { style: 'margin-top:14px' },
+      el('button', { class: 'chip', type: 'button', text: 'Thử lại', onclick: () => { LOADERR = ''; render(); refresh(true); } }))] : (canCall() ? 'Đang tải…' : 'Hãy mở bảng việc từ nút 📊 trong bot Telegram.')));
+    return;
+  }
+  const dd = dayDate(dayIdx(DATA.now));
+  document.getElementById('sub').textContent = WDN[WD[dd.getUTCDay()]] + ', ' + dd.getUTCDate() + ' tháng ' + (dd.getUTCMonth() + 1) +
+    ' · cập nhật ' + DATA.nowLabel.split(' ')[0];
+  document.querySelectorAll('.top .tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === UI.tab)));
+  main.replaceChildren();
+  ({ week: renderWeek, stats: renderStats, all: renderAll })[UI.tab](main);
+}
+document.querySelectorAll('.top .tabs button').forEach(b => b.addEventListener('click', () => { UI.tab = b.dataset.tab; hideTip(); render(); scrollTo(0, 0); }));
+document.getElementById('btnRefresh').appendChild(svgi('refresh'));
+document.getElementById('btnRefresh').addEventListener('click', () => refresh(false));
+let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (UI.tab === 'stats') render(); }, 150); });
+setInterval(() => { if (document.visibilityState === 'visible') refresh(true); }, 5 * 60000);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && FETCH_MODE) refresh(true); });
+render();
+if (FETCH_MODE) {                                              // trang riêng: lấy số liệu ngay + nạp thư viện Telegram (đọc theme, mở rộng khung)
+  refresh(true);
+  const tgs = document.createElement('script'); tgs.src = 'https://telegram.org/js/telegram-web-app.js';
+  tgs.onload = () => { try { const w = Telegram.WebApp; w.ready(); w.expand(); w.onEvent('themeChanged', () => applyThemeParams(w.themeParams)); } catch (e) { /* ngoài Telegram */ } };
+  document.head.appendChild(tgs);
+}
+if (hasGAS() && google.script.url) google.script.url.getLocation(loc => applyTelegramTheme(loc.hash));
+else applyTelegramTheme(location.hash);                       // trang riêng / bản xem thử
+</script>
+</body>
+</html>
