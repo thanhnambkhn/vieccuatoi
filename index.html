@@ -3,13 +3,12 @@
 <head>
 <base target="_top">
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="robots" content="noindex,nofollow">
-<title>Việc của tôi</title>
 <meta name="referrer" content="no-referrer">
 <!--
-  index.html — Bảng việc (Telegram Mini App) chạy trên trang riêng (GitHub Pages). File này được sinh từ Dashboard.html.
-  Không chứa khóa hay dữ liệu: khóa (k) và link Apps Script (a) nằm trong link mà bot gửi.
+  Dashboard.html — Telegram Mini App cho Telegram Task Bot (chạy trên Google Apps Script).
+  Trong Apps Script: Tệp (+) → HTML → đặt tên đúng "Dashboard" → dán toàn bộ file này.
+  • Mở trong Telegram (nút 📊 cạnh ô chat): tự lấy màu theme Telegram qua tgWebAppThemeParams.
+  • Mở bằng trình duyệt: dùng màu sáng/tối theo hệ điều hành.
 -->
 <style>
   :root {
@@ -36,7 +35,7 @@
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; background: var(--page); color: var(--text); }
-  body { font: 16px/1.35 -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", Roboto, sans-serif;
+  body { font: 500 15.5px/1.35 -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", Roboto, sans-serif;
     -webkit-font-smoothing: antialiased; letter-spacing: 0; }
   button, input { font: inherit; color: inherit; letter-spacing: inherit; }
   .app { max-width: 640px; margin: 0 auto; padding-bottom: 40px; }
@@ -54,14 +53,14 @@
   .top { position: sticky; top: 0; z-index: 5; padding: 8px 16px 10px; background: color-mix(in srgb, var(--page) 88%, transparent);
     -webkit-backdrop-filter: saturate(1.8) blur(14px); backdrop-filter: saturate(1.8) blur(14px); }
   .tabs { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--wash); border-radius: 9px; padding: 2px; }
-  .tabs button { border: 0; background: transparent; padding: 7px 0; border-radius: 7px; font-size: 14px; font-weight: 400; cursor: pointer; color: var(--text); min-height: 32px; }
-  .tabs button[aria-selected="true"] { background: var(--section); font-weight: 500; box-shadow: 0 1px 3px rgba(0,0,0,.14), 0 0 0 .5px rgba(0,0,0,.05); }
+  .tabs button { border: 0; background: transparent; padding: 7px 0; border-radius: 7px; font-size: 14px; font-weight: 500; cursor: pointer; color: var(--text); min-height: 32px; }
+  .tabs button[aria-selected="true"] { background: var(--section); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.14), 0 0 0 .5px rgba(0,0,0,.05); }
   :root[data-theme="dark"] .tabs button[aria-selected="true"] { background: rgba(255,255,255,.16); box-shadow: none; }
   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tabs button[aria-selected="true"] { background: rgba(255,255,255,.16); box-shadow: none; } }
 
   /* Dải tóm tắt: chỉ hiện mục có số khác 0 */
   .pills { display: flex; flex-wrap: wrap; gap: 8px; padding: 6px 16px 0; }
-  .pill { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 16px; font-size: 14px; font-weight: 400;
+  .pill { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 16px; font-size: 14px; font-weight: 500;
     background: var(--section); box-shadow: var(--shadow); color: var(--sub); }
   .pill b { font-size: 15px; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
   .pill.crit { background: color-mix(in srgb, var(--critical) 13%, var(--section)); color: var(--critical); } .pill.crit b { color: var(--critical); }
@@ -82,7 +81,7 @@
   .sec-h .cnt { font-size: 15px; color: var(--hint); }
   .sec-h .ico { align-self: center; }
   .sec-h.crit .nm { color: var(--critical); }
-  .sec-h.small { padding-top: 18px; } .sec-h.small .nm { font-size: 13px; font-weight: 500; text-transform: uppercase; letter-spacing: .03em; color: var(--header-text); }
+  .sec-h.small { padding-top: 18px; } .sec-h.small .nm { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; color: var(--header-text); }
   .sec { background: var(--section); border-radius: 14px; margin: 0 16px; overflow: hidden; box-shadow: var(--shadow); }
   .sec-f { font-size: 13px; color: var(--hint); padding: 8px 22px 0; }
 
@@ -91,12 +90,12 @@
   .item + .item::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; border-top: .5px solid var(--sep); }
   .item .lead { width: 30px; flex: none; display: grid; place-items: center; }
   .item .body { flex: 1; min-width: 0; }
-  .item .t { overflow-wrap: anywhere; font-weight: 400; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+  .item .t { overflow-wrap: anywhere; font-weight: 500; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
   .item .s { font-size: 13.5px; color: var(--hint); margin-top: 2px; overflow-wrap: anywhere; }
   .item .tail { flex: none; font-size: 13.5px; color: var(--hint); text-align: right; font-variant-numeric: tabular-nums; }
   a.item { color: inherit; text-decoration: none; cursor: pointer; }
   a.item:active, .item.tap:active { background: var(--wash); }
-  .live { color: var(--critical); font-weight: 500; }
+  .live { color: var(--critical); font-weight: 600; }
   .empty { padding: 16px; color: var(--hint); font-size: 15px; }
   .tile { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; color: #fff; font-size: 17px; background: var(--hint); }
   .tile.event { background: var(--event); } .tile.task { background: var(--task); } .tile.done { background: var(--good); }
@@ -105,19 +104,19 @@
   /* Dòng lịch/việc trong "Tuần này": giờ bên trái · vạch màu · nội dung · nút xong */
   .row { padding: 12px 6px 12px 16px; gap: 10px; align-items: stretch; min-height: 64px; }
   .row .when { width: 50px; flex: none; display: flex; flex-direction: column; justify-content: center; font-variant-numeric: tabular-nums; }
-  .row .when .a { font-size: 16px; font-weight: 500; line-height: 1.2; }
+  .row .when .a { font-size: 16px; font-weight: 600; line-height: 1.2; }
   .row .when .b { font-size: 13px; color: var(--hint); line-height: 1.25; margin-top: 1px; }
-  .row .when .a.sm { font-size: 12.5px; font-weight: 400; color: var(--hint); white-space: nowrap; }
+  .row .when .a.sm { font-size: 12.5px; font-weight: 500; color: var(--hint); white-space: nowrap; }
   .row .when .a.late { color: var(--critical); font-size: 14px; }
   .row .bar { width: 4px; border-radius: 2px; flex: none; background: var(--event); }
   .row.task .bar { background: var(--task); }
   .row.over .bar { background: var(--critical); }
   .row .main { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
-  .row .ttl { font-weight: 400; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+  .row .ttl { font-weight: 500; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
   .row.open .ttl { -webkit-line-clamp: unset; line-clamp: unset; }
   .row .meta { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; margin-top: 3px; font-size: 13.5px; color: var(--hint); }
   .row .meta .late { color: var(--critical); }
-  .who { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px 0 6px; border-radius: 11px; font-size: 13px; font-weight: 500;
+  .who { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px 0 6px; border-radius: 11px; font-size: 13px; font-weight: 600;
     background: color-mix(in srgb, var(--person) 14%, transparent); color: var(--person); max-width: 100%; }
   .who .i { font-size: 13px; }
   .row .act { width: 48px; flex: none; display: grid; place-items: center; }
@@ -136,7 +135,7 @@
   .chk svg { position: relative; width: 15px; height: 15px; stroke-width: 3.2; }
   .chk.armed { color: #fff; } .chk.armed::before { border-color: var(--good); background: var(--good); }
   .chk:disabled { opacity: .5; }
-  .confirm-hint { color: var(--good-text); font-size: 13px; font-weight: 500; }
+  .confirm-hint { color: var(--good-text); font-size: 13px; font-weight: 600; }
 
   /* Huy hiệu trạng thái: luôn có biểu tượng + chữ, không dùng màu đơn thuần */
   .ico { display: inline-grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; font-size: 10px; font-weight: 600; color: #fff; flex: none; }
@@ -144,17 +143,23 @@
   .badge { display: inline-flex; gap: 4px; align-items: center; font-size: 13px; color: var(--sub); white-space: nowrap; }
 
   /* Bộ lọc dạng chip + ô tìm */
+  /* Dải chọn: Của tôi | Đã giao | Tất cả (dưới tab, ẩn ở tab Thống kê) */
+  .own { display: flex; gap: 8px; margin-top: 8px; }
+  .own button { flex: 1; border: 0; background: var(--section); color: var(--text); border-radius: 18px; height: 34px; padding: 0 10px; font-size: 14px; font-weight: 500; cursor: pointer; box-shadow: var(--shadow); white-space: nowrap; }
+  .own button[aria-pressed="true"] { background: var(--accent); color: var(--accent-text); font-weight: 600; }
+  .own .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--critical); margin-left: 6px; vertical-align: middle; }
+  .av { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: var(--person); color: #fff; font-size: 10.5px; font-weight: 700; line-height: 1; }
   .chips { display: flex; gap: 8px; overflow-x: auto; padding: 4px 16px 2px; scrollbar-width: none; }
   .chips::-webkit-scrollbar { display: none; }
-  .chip { flex: none; border: 0; background: var(--section); color: var(--text); border-radius: 18px; height: 34px; padding: 0 14px; font-size: 14px; font-weight: 400; cursor: pointer; box-shadow: var(--shadow); }
-  .chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-text); font-weight: 500; }
+  .chip { flex: none; border: 0; background: var(--section); color: var(--text); border-radius: 18px; height: 34px; padding: 0 14px; font-size: 14px; font-weight: 500; cursor: pointer; box-shadow: var(--shadow); }
+  .chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-text); font-weight: 600; }
   .search { margin: 6px 16px 10px; display: flex; align-items: center; gap: 8px; background: var(--wash); border-radius: 11px; padding: 0 10px; color: var(--hint); }
   .search input { border: 0; outline: 0; background: transparent; padding: 10px 0; flex: 1; min-width: 0; color: var(--text); }
-  .more { display: block; width: calc(100% - 32px); margin: 12px 16px 0; border: 0; background: var(--section); color: var(--accent); border-radius: 14px; padding: 14px; cursor: pointer; font-weight: 400; box-shadow: var(--shadow); }
+  .more { display: block; width: calc(100% - 32px); margin: 12px 16px 0; border: 0; background: var(--section); color: var(--accent); border-radius: 14px; padding: 14px; cursor: pointer; font-weight: 500; box-shadow: var(--shadow); }
 
   /* Biểu đồ */
   .chart { padding: 14px 16px 12px; }
-  .chart h3 { margin: 0; font-size: 16px; font-weight: 500; }
+  .chart h3 { margin: 0; font-size: 16px; font-weight: 600; }
   .chart .cap { font-size: 13px; color: var(--hint); margin: 2px 0 8px; }
   .legend { display: flex; gap: 14px; font-size: 13px; color: var(--sub); margin-bottom: 4px; }
   .legend span { display: inline-flex; align-items: center; gap: 6px; }
@@ -162,7 +167,7 @@
   svg text { font-family: inherit; }
   .gridline { stroke: var(--grid); stroke-width: 1; } .axisline { stroke: var(--axis); stroke-width: 1; }
   .ticklbl { fill: var(--hint); font-size: 11px; font-variant-numeric: tabular-nums; }
-  .endlbl { fill: var(--sub); font-size: 11.5px; font-weight: 500; }
+  .endlbl { fill: var(--sub); font-size: 11.5px; font-weight: 600; }
   .cols { display: grid; grid-template-columns: repeat(7, 1fr); align-items: end; height: 140px; gap: 4px; border-bottom: 1px solid var(--axis); }
   .col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
   .col .v { font-size: 11.5px; color: var(--sub); font-variant-numeric: tabular-nums; margin-bottom: 3px; }
@@ -175,7 +180,7 @@
   details.data { margin-top: 8px; font-size: 13px; color: var(--sub); }
   details.data summary { cursor: pointer; color: var(--accent); }
   details.data table { border-collapse: collapse; width: 100%; margin-top: 4px; }
-  details.data td, details.data th { padding: 4px 6px; border-bottom: .5px solid var(--sep); text-align: left; font-weight: 400; }
+  details.data td, details.data th { padding: 4px 6px; border-bottom: .5px solid var(--sep); text-align: left; font-weight: 500; }
   details.data .num { text-align: right; font-variant-numeric: tabular-nums; }
   .seg { display: flex; justify-content: center; padding: 4px 16px 0; }
   .seg .tabs { width: 100%; max-width: 340px; }
@@ -187,7 +192,7 @@
   .tip .r b { font-variant-numeric: tabular-nums; min-width: 20px; }
   .tip .r span { color: var(--sub); }
   .toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); background: rgba(40,40,42,.92); color: #fff;
-    padding: 11px 18px; border-radius: 22px; font-size: 14.5px; font-weight: 400; z-index: 30; white-space: nowrap; box-shadow: 0 6px 24px rgba(0,0,0,.25); }
+    padding: 11px 18px; border-radius: 22px; font-size: 14.5px; font-weight: 500; z-index: 30; white-space: nowrap; box-shadow: 0 6px 24px rgba(0,0,0,.25); }
   .busy { opacity: .55; pointer-events: none; transition: opacity .15s; }
   .warn { margin: 12px 16px 0; padding: 12px 14px; border-radius: 14px; background: var(--section); font-size: 13.5px; color: var(--sub); }
 </style>
@@ -195,7 +200,7 @@
 <body>
 <div class="app">
   <header class="head">
-    <div class="tt"><h1>Việc của tôi</h1><div class="sub" id="sub"></div></div>
+    <div class="tt"><div class="sub" id="sub"></div></div>
     <button class="icon-btn" id="btnRefresh" type="button" aria-label="Làm mới"></button>
   </header>
   <div class="top">
@@ -204,19 +209,22 @@
       <button type="button" role="tab" data-tab="stats" aria-selected="false">Thống kê</button>
       <button type="button" role="tab" data-tab="all" aria-selected="false">Tất cả</button>
     </div>
+    <div class="own" id="own" role="group" aria-label="Lọc theo người làm"></div>
   </div>
   <main id="main"></main>
 </div>
 <div class="tip" id="tip" role="tooltip" hidden></div>
 
 <script>
-const _P = new URLSearchParams(location.search);
-const KEY = _P.get('k') || '', API = _P.get('a') || '';   // khóa + link /exec do bot gắn vào link mở trang
-let DATA = API ? loadCache() : null;                                  // hiện ngay bản lần trước, rồi tải số liệu mới
+const KEY = <?!= JSON.stringify(key) ?>;
+let DATA = <?!= initial ?>;
 
 // ============================================================ tiện ích
 const DAY = 86400000, WD = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
-const UI = { tab: 'week', range: 30, filter: 'ACTIVE', q: '', limit: 40 };
+const UI = { tab: 'week', range: 30, filter: 'ACTIVE', q: '', limit: 40, own: loadOwn() };
+/** Lọc theo người làm: mine = việc của tôi · deleg = việc đã giao · all = cả hai. Nhớ lựa chọn cho lần mở sau (mặc định: mine). */
+function loadOwn() { try { const v = localStorage.getItem('dash_own_v1'); return v === 'deleg' || v === 'all' ? v : 'mine'; } catch (e) { return 'mine'; } }
+function saveOwn(v) { try { localStorage.setItem('dash_own_v1', v); } catch (e) { /* bỏ qua */ } }
 const pad = n => (n < 10 ? '0' : '') + n;
 const off = () => DATA.tzOffsetMin * 60000;
 const dayIdx = ms => Math.floor((ms + off()) / DAY);                 // số ngày theo giờ VN
@@ -363,7 +371,10 @@ function isPastEvent(i) {
   return (i.e || (i.ht ? i.d + 3600000 : (dayIdx(i.d) + 1) * DAY - off())) < DATA.now;
 }
 const isActiveOpen = i => i.st === 'OPEN' && !isPastEvent(i);
-const who = i => i.a ? 'Giao ' + i.a + ' · ' : '';                     // việc đã giao cho nhân viên
+const who = i => i.a ? 'Giao ' + i.a + ' · ' : '';
+const ownItem = i => UI.own === 'all' || (UI.own === 'deleg') === !!i.a;            // việc (trong Sheet) có hợp bộ lọc không
+const ownRow = r => UI.own === 'all' || (UI.own === 'deleg') === !!parseWho(r.title).who;  // dòng tuần (lịch/Google Tasks không có người → của tôi)
+const avatar = name => el('span', { class: 'av', 'aria-hidden': 'true', text: (String(name).trim()[0] || '?').toUpperCase() });                     // việc đã giao cho nhân viên
 function isOverdue(i) {
   if (i.st !== 'OPEN' || i.ty !== 'TASK' || !i.d) return false;
   return i.ht ? i.d < DATA.now : dayIdx(i.d) < dayIdx(DATA.now);
@@ -406,7 +417,7 @@ function weekRow(r, over) {
   if (!over && /^trong ngày$/i.test(note)) note = '';
   const live = /đang diễn ra/i.test(note);
   const meta = el('div', { class: 'meta' },
-    w.who ? el('span', { class: 'who' }, svgi('person'), w.who) : null,
+    w.who ? el('span', { class: 'who' }, avatar(w.who), w.who) : null,
     live ? el('span', { class: 'live', text: 'Đang diễn ra' }) : (note ? el('span', { class: over ? 'late' : '', text: note }) : null));
   const row = el('div', { class: 'item row tap ' + (over ? 'over ' : '') + (isEv ? 'event' : 'task') },
     el('div', { class: 'when' }, el('div', { class: 'a ' + cls, text: a }), b ? el('div', { class: 'b', text: b }) : null),
@@ -417,12 +428,33 @@ function weekRow(r, over) {
   return row;
 }
 
+/** Chế độ "Đã giao": gom theo người, người có việc trễ lên đầu, mỗi việc bấm ✓ để ghi nhận đã xong. */
+function renderDelegated(main) {
+  const open = DATA.items.filter(i => i.a && isActiveOpen(i));
+  const by = {};
+  open.forEach(i => i.a.split(', ').forEach(n => (by[n] = by[n] || []).push(i)));
+  const names = Object.keys(by).sort((a, b) => by[b].filter(isOverdue).length - by[a].filter(isOverdue).length || by[b].length - by[a].length);
+  if (!names.length) {
+    main.append(el('div', { class: 'sec' }, el('div', { class: 'empty', text: 'Chưa giao việc nào. Gõ "@Tên việc… hạn" trong chat, hoặc bấm 👤 trên thẻ việc.' })));
+    return;
+  }
+  names.forEach(n => {
+    const list = by[n].sort((a, b) => (a.d || 9e15) - (b.d || 9e15)), nl = list.filter(isOverdue).length;
+    main.append(el('div', { class: 'sec-h' + (nl ? ' crit' : '') }, avatar(n), el('span', { class: 'nm', text: n }),
+      el('span', { class: 'cnt', text: '· ' + list.length + (nl ? ' · ' + nl + ' trễ' : '') })));
+    main.append(el('div', { class: 'sec' }, list.map(i => item({ ref: i.id, title: i.t, sub: [i.dl || 'Chưa có hạn', i.src].filter(Boolean).join(' · '), tail: badge(i) }))));
+  });
+  main.append(el('div', { class: 'sec-f', text: 'Chạm ✓ khi nhân viên báo xong. Nhắc đôn đốc việc trễ do bot gửi lúc 9h sáng.' }));
+}
+
 function renderWeek(main) {
+  if (UI.own === 'deleg') return renderDelegated(main);
   const W = DATA.week, items = DATA.items, today = dayIdx(DATA.now);
-  const open = items.filter(isActiveOpen);
+  const open = items.filter(isActiveOpen).filter(ownItem);
   const dueToday = open.filter(i => i.ty === 'TASK' && i.d && dayIdx(i.d) === today && !isOverdue(i)).length;
-  const drafts = items.filter(i => i.st === 'DRAFT');
-  const nOver = W.overdue.length;
+  const drafts = items.filter(i => i.st === 'DRAFT').filter(ownItem);
+  const overdue = W.overdue.filter(ownRow);
+  const nOver = overdue.length;
 
   // Dải tóm tắt: chỉ hiện mục có việc (không chiếm chỗ bằng số 0)
   const pills = [];
@@ -432,10 +464,11 @@ function renderWeek(main) {
   if (pills.length) main.append(el('div', { class: 'pills' }, pills));
 
   if (nOver) {
-    main.append(secH('Quá hạn', nOver, null, 'crit'), el('div', { class: 'sec' }, W.overdue.map(r => weekRow(r, true))));
+    main.append(secH('Quá hạn', nOver, null, 'crit'), el('div', { class: 'sec' }, overdue.map(r => weekRow(r, true))));
   }
   const emptyDays = [];
-  W.days.forEach((d, k) => {
+  W.days.forEach((d0, k) => {
+    const d = { label: d0.label, rows: d0.rows.filter(ownRow) };
     const parts = d.label.replace('Hôm nay · ', '').split(' ');
     const wd = parts[0], dm = parts[1] || '';
     if (!d.rows.length && k > 0) { emptyDays.push(wd + ' ' + dm); return; }
@@ -633,8 +666,9 @@ function hbars(pairs) {
 }
 
 // ============================================================ TAB 3: Tất cả
-const FILTERS = [['ACTIVE', 'Đang làm'], ['OVERDUE', 'Quá hạn'], ['DELEG', 'Đã giao'], ['DRAFT', 'Nháp'], ['DONE', 'Đã xong'], ['PAST', 'Lịch đã qua'], ['CANCELLED', 'Đã hủy'], ['', 'Tất cả']];
+const FILTERS = [['ACTIVE', 'Đang làm'], ['OVERDUE', 'Quá hạn'], ['DRAFT', 'Nháp'], ['DONE', 'Đã xong'], ['PAST', 'Lịch đã qua'], ['CANCELLED', 'Đã hủy'], ['', 'Tất cả']];
 function matchFilter(i) {
+  if (!ownItem(i)) return false;
   switch (UI.filter) {
     case 'ACTIVE': return isActiveOpen(i) || i.st === 'DRAFT';
     case 'OVERDUE': return isOverdue(i);
@@ -677,6 +711,19 @@ function renderAll(main) {
 }
 
 // ============================================================ khung chung
+/** Dải chọn Của tôi | Đã giao | Tất cả. Chỉ "Đã giao" có số + chấm đỏ khi có việc trễ. Ẩn ở tab Thống kê. */
+function drawOwn() {
+  const host = document.getElementById('own');
+  host.hidden = UI.tab === 'stats';
+  if (host.hidden || !DATA) return;
+  const dg = DATA.items.filter(i => i.a && isActiveOpen(i)), late = dg.filter(isOverdue).length;
+  host.replaceChildren(...[['mine', 'Của tôi'], ['deleg', 'Đã giao' + (dg.length ? ' · ' + dg.length : '')], ['all', 'Tất cả']].map(o => {
+    const b = el('button', { type: 'button', 'aria-pressed': String(UI.own === o[0]), text: o[1] });
+    if (o[0] === 'deleg' && late) b.append(el('span', { class: 'dot', 'aria-label': late + ' việc trễ' }));
+    b.addEventListener('click', () => { UI.own = o[0]; saveOwn(o[0]); UI.limit = 40; render(); scrollTo(0, 0); });
+    return b;
+  }));
+}
 function render() {
   const main = document.getElementById('main');
   if (!DATA) {                                              // chưa có số liệu (trang riêng, lần mở đầu)
@@ -689,6 +736,7 @@ function render() {
   document.getElementById('sub').textContent = WDN[WD[dd.getUTCDay()]] + ', ' + dd.getUTCDate() + ' tháng ' + (dd.getUTCMonth() + 1) +
     ' · cập nhật ' + DATA.nowLabel.split(' ')[0];
   document.querySelectorAll('.top .tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === UI.tab)));
+  drawOwn();
   main.replaceChildren();
   ({ week: renderWeek, stats: renderStats, all: renderAll })[UI.tab](main);
 }
