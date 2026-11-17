@@ -7,6 +7,9 @@
 <meta name="robots" content="noindex,nofollow">
 <title>Việc của tôi</title>
 <meta name="referrer" content="no-referrer">
+<link rel="preconnect" href="https://telegram.org" crossorigin>
+<link rel="preconnect" href="https://script.google.com" crossorigin>
+<script async id="tgWebAppScript" src="https://telegram.org/js/telegram-web-app.js"></script>
 <!--
   index.html — Bảng việc (Telegram Mini App) chạy trên trang riêng (GitHub Pages). File này được sinh từ Dashboard.html.
   Không chứa khóa hay dữ liệu: khóa (k) và link Apps Script (a) nằm trong link mà bot gửi.
@@ -756,9 +759,13 @@ document.addEventListener('visibilitychange', () => { if (document.visibilitySta
 render();
 if (FETCH_MODE) {                                              // trang riêng: lấy số liệu ngay + nạp thư viện Telegram (đọc theme, mở rộng khung)
   refresh(true);
-  const tgs = document.createElement('script'); tgs.src = 'https://telegram.org/js/telegram-web-app.js';
-  tgs.onload = () => { try { const w = Telegram.WebApp; w.ready(); w.expand(); w.onEvent('themeChanged', () => applyThemeParams(w.themeParams)); } catch (e) { /* ngoài Telegram */ } };
-  document.head.appendChild(tgs);
+  const initTelegram = () => { try {
+    const w = window.Telegram && window.Telegram.WebApp;
+    if (!w) return;
+    w.ready(); w.expand(); w.onEvent('themeChanged', () => applyThemeParams(w.themeParams));
+  } catch (e) { /* ngoài Telegram */ } };
+  if (window.Telegram && window.Telegram.WebApp) initTelegram();
+  else document.getElementById('tgWebAppScript').addEventListener('load', initTelegram, { once: true });
 }
 if (hasGAS() && google.script.url) google.script.url.getLocation(loc => applyTelegramTheme(loc.hash));
 else applyTelegramTheme(location.hash);                       // trang riêng / bản xem thử
