@@ -730,18 +730,22 @@ function drawOwn() {
 function render() {
   const main = document.getElementById('main');
   if (!DATA) {                                              // chưa có số liệu (trang riêng, lần mở đầu)
-    document.getElementById('sub').textContent = '';
+    setSubtitle('');
     main.replaceChildren(el('div', { class: 'quiet', style: 'text-align:center;margin-top:40px' }, LOADERR ? ['⚠️ ' + LOADERR, el('div', { style: 'margin-top:14px' },
       el('button', { class: 'chip', type: 'button', text: 'Thử lại', onclick: () => { LOADERR = ''; render(); refresh(true); } }))] : (canCall() ? 'Đang tải…' : 'Hãy mở bảng việc từ nút 📊 trong bot Telegram.')));
     return;
   }
   const dd = dayDate(dayIdx(DATA.now));
-  document.getElementById('sub').textContent = WDN[WD[dd.getUTCDay()]] + ', ' + dd.getUTCDate() + ' tháng ' + (dd.getUTCMonth() + 1) +
-    ' · cập nhật ' + DATA.nowLabel.split(' ')[0];
+  setSubtitle(WDN[WD[dd.getUTCDay()]] + ', ' + dd.getUTCDate() + ' tháng ' + (dd.getUTCMonth() + 1) +
+    ' · cập nhật ' + DATA.nowLabel.split(' ')[0]);
   document.querySelectorAll('.top .tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === UI.tab)));
   drawOwn();
   main.replaceChildren();
   ({ week: renderWeek, stats: renderStats, all: renderAll })[UI.tab](main);
+}
+function setSubtitle(text) {
+  const sub = document.getElementById('sub');
+  if (sub) sub.textContent = text;
 }
 document.querySelectorAll('.top .tabs button').forEach(b => b.addEventListener('click', () => { UI.tab = b.dataset.tab; hideTip(); render(); scrollTo(0, 0); }));
 document.getElementById('btnRefresh').appendChild(svgi('refresh'));
