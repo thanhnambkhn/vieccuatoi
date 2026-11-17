@@ -47,16 +47,14 @@
   .app { max-width: 640px; margin: 0 auto; padding-bottom: 40px; }
   svg.i { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
 
-  /* Tiêu đề lớn (cuộn đi như iOS) + thanh phân đoạn dính trên cùng */
-  .head { padding: 18px 20px 6px; display: flex; align-items: flex-end; gap: 12px; }
-  .head .tt { flex: 1; min-width: 0; }
-  .head h1 { margin: 0; font-size: 30px; line-height: 1.1; font-weight: 600; letter-spacing: -.02em; }
-  .head .sub { margin-top: 4px; font-size: 14px; color: var(--hint); }
-  .icon-btn { width: 40px; height: 40px; border-radius: 50%; border: 0; background: var(--section); color: var(--accent);
-    display: grid; place-items: center; cursor: pointer; font-size: 19px; box-shadow: var(--shadow); flex: none; }
+  /* Thanh tab và nút làm mới dùng chung một hàng. */
+  .toolbar { display: flex; align-items: center; gap: 8px; }
+  .toolbar .tabs { flex: 1; min-width: 0; }
+  .icon-btn { width: 44px; height: 44px; border-radius: 12px; border: 0; background: transparent; color: var(--accent);
+    display: grid; place-items: center; cursor: pointer; font-size: 19px; flex: none; }
   .icon-btn:active { background: var(--wash); }
   .icon-btn:disabled { opacity: .45; }
-  .top { position: sticky; top: 0; z-index: 5; padding: 8px 16px 10px; background: color-mix(in srgb, var(--page) 88%, transparent);
+  .top { position: sticky; top: 0; z-index: 5; padding: 4px 16px 8px; background: color-mix(in srgb, var(--page) 88%, transparent);
     -webkit-backdrop-filter: saturate(1.8) blur(14px); backdrop-filter: saturate(1.8) blur(14px); }
   .tabs { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--wash); border-radius: 9px; padding: 2px; }
   .tabs button { border: 0; background: transparent; padding: 7px 0; border-radius: 7px; font-size: 14px; font-weight: 500; cursor: pointer; color: var(--text); min-height: 32px; }
@@ -74,14 +72,14 @@
 
   /* Ô tóm tắt (tab Thống kê) */
   .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 4px 16px 0; }
-  .stat { background: var(--section); border-radius: 14px; padding: 14px 14px 12px; box-shadow: var(--shadow); }
-  .stat .v { font-size: 30px; font-weight: 600; line-height: 1.05; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  .stat { min-width: 0; background: var(--section); border-radius: 14px; padding: 12px; box-shadow: var(--shadow); }
+  .stat .v { font-size: 28px; font-weight: 600; line-height: 1.05; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
   .stat .l { font-size: 14px; color: var(--sub); margin-top: 4px; display: flex; gap: 5px; align-items: center; }
   .stat .d { font-size: 12.5px; color: var(--hint); margin-top: 3px; }
   .stat .d.up-good { color: var(--good-text); }
 
   /* Khối ngày / nhóm */
-  .sec-h { display: flex; align-items: baseline; gap: 8px; padding: 22px 20px 8px; }
+  .sec-h { display: flex; align-items: baseline; gap: 8px; padding: 18px 20px 8px; }
   .sec-h .nm { font-size: 21px; font-weight: 600; letter-spacing: -.015em; }
   .sec-h .dt { font-size: 15px; color: var(--hint); }
   .sec-h .cnt { font-size: 15px; color: var(--hint); }
@@ -150,7 +148,8 @@
 
   /* Bộ lọc dạng chip + ô tìm */
   /* Dải chọn: Của tôi | Đã giao | Tất cả (dưới tab, ẩn ở tab Thống kê) */
-  .own { display: flex; gap: 8px; margin-top: 8px; }
+  .own { display: flex; gap: 8px; margin-top: 4px; }
+  .own[hidden] { display: none; }
   .own button { flex: 1; border: 0; background: var(--section); color: var(--text); border-radius: 18px; height: 34px; padding: 0 10px; font-size: 14px; font-weight: 500; cursor: pointer; box-shadow: var(--shadow); white-space: nowrap; }
   .own button[aria-pressed="true"] { background: var(--accent); color: var(--accent-text); font-weight: 600; }
   .own .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--critical); margin-left: 6px; vertical-align: middle; }
@@ -205,14 +204,14 @@
 </head>
 <body>
 <div class="app">
-  <header class="head">
-    <button class="icon-btn" id="btnRefresh" type="button" aria-label="Làm mới"></button>
-  </header>
   <div class="top">
-    <div class="tabs" role="tablist">
-      <button type="button" role="tab" data-tab="week" aria-selected="true">Tuần này</button>
-      <button type="button" role="tab" data-tab="stats" aria-selected="false">Thống kê</button>
-      <button type="button" role="tab" data-tab="all" aria-selected="false">Tất cả</button>
+    <div class="toolbar">
+      <div class="tabs" role="tablist">
+        <button type="button" role="tab" data-tab="week" aria-selected="true">Tuần này</button>
+        <button type="button" role="tab" data-tab="stats" aria-selected="false">Thống kê</button>
+        <button type="button" role="tab" data-tab="all" aria-selected="false">Tất cả</button>
+      </div>
+      <button class="icon-btn" id="btnRefresh" type="button" aria-label="Làm mới" title="Làm mới"></button>
     </div>
     <div class="own" id="own" role="group" aria-label="Lọc theo người làm"></div>
   </div>
