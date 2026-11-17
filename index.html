@@ -3,10 +3,13 @@
 <head>
 <base target="_top">
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Việc của tôi</title>
 <meta name="referrer" content="no-referrer">
 <!--
-  Dashboard.html — Telegram Mini App cho Telegram Task Bot (chạy trên Google Apps Script).
-  Trong Apps Script: Tệp (+) → HTML → đặt tên đúng "Dashboard" → dán toàn bộ file này.
+  index.html — Bảng việc (Telegram Mini App) chạy trên trang riêng (GitHub Pages). File này được sinh từ Dashboard.html.
+  Không chứa khóa hay dữ liệu: khóa (k) và link Apps Script (a) nằm trong link mà bot gửi.
   • Mở trong Telegram (nút 📊 cạnh ô chat): tự lấy màu theme Telegram qua tgWebAppThemeParams.
   • Mở bằng trình duyệt: dùng màu sáng/tối theo hệ điều hành.
 -->
@@ -200,7 +203,7 @@
 <body>
 <div class="app">
   <header class="head">
-    <div class="tt"><div class="sub" id="sub"></div></div>
+    <div class="tt"><h1>Việc của tôi</h1><div class="sub" id="sub"></div></div>
     <button class="icon-btn" id="btnRefresh" type="button" aria-label="Làm mới"></button>
   </header>
   <div class="top">
@@ -216,8 +219,9 @@
 <div class="tip" id="tip" role="tooltip" hidden></div>
 
 <script>
-const KEY = <?!= JSON.stringify(key) ?>;
-let DATA = <?!= initial ?>;
+const _P = new URLSearchParams(location.search);
+const KEY = _P.get('k') || '', API = _P.get('a') || '';   // khóa + link /exec do bot gắn vào link mở trang
+let DATA = API ? loadCache() : null;                                  // hiện ngay bản lần trước, rồi tải số liệu mới
 
 // ============================================================ tiện ích
 const DAY = 86400000, WD = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
