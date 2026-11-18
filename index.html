@@ -16,17 +16,18 @@
   • Mở trong Telegram (nút 📊 cạnh ô chat): tự lấy màu theme Telegram qua tgWebAppThemeParams.
   • Mở bằng trình duyệt: dùng màu sáng/tối theo hệ điều hành.
   • Theme Telegram được kiểm tra tương phản; vùng an toàn và thao tác bàn phím được hỗ trợ.
+  • Bố cục iOS dùng dữ liệu thật; nút chi tiết mở bảng thông tin, nút hoàn thành vẫn xác nhận hai lần.
 -->
 <style>
   :root {
     /* Màu hệ thống kiểu iOS (sáng). Mở trong Telegram thì bị ghi đè bằng theme Telegram. */
-    --page: #f2f2f7; --section: #ffffff; --text: #000000; --hint: #64646b; --sub: #6c6c70;
-    --accent: #005ec4; --accent-text: #ffffff; --button: #005ec4; --sep: rgba(60,60,67,.16); --wash: rgba(118,118,128,.12);
+    --page: #f5f5f7; --section: #ffffff; --text: #1d1d1f; --hint: #6e6e73; --sub: #6e6e73;
+    --accent: #005ec4; --accent-text: #ffffff; --button: #005ec4; --selected-bg: #e7f2ff; --selected-text: #005ec4; --sep: rgba(60,60,67,.08); --wash: rgba(118,118,128,.12);
     --header-text: #6c6c70; --destructive: #c62828;
     --event: #007aff; --task: #ff9500; --critical: #c62828; --person: #7d5bd0;
     --good: #34c759; --good-text: #1d8a3b; --warning: #ff9500;
     --series-1: #2a78d6; --series-2: #eb6834; --grid: #e1e0d9; --axis: #c3c2b7;
-    --shadow: 0 1px 2px rgba(0,0,0,.06);
+    --shadow: 0 2px 10px rgba(25,25,40,.035);
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -42,10 +43,10 @@
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; background: var(--page); color: var(--text); }
-  body { font: 400 16px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
+  body { font: 400 15.5px/1.42 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
     -webkit-font-smoothing: antialiased; letter-spacing: 0; }
   button, input { font: inherit; color: inherit; letter-spacing: inherit; }
-  .app { max-width: 640px; margin: 0 auto;
+  .app { max-width: 430px; margin: 0 auto;
     padding: max(env(safe-area-inset-top, 0px), var(--tg-safe-area-inset-top, 0px), var(--tg-content-safe-area-inset-top, 0px))
       max(env(safe-area-inset-right, 0px), var(--tg-safe-area-inset-right, 0px), var(--tg-content-safe-area-inset-right, 0px))
       calc(24px + max(env(safe-area-inset-bottom, 0px), var(--tg-safe-area-inset-bottom, 0px), var(--tg-content-safe-area-inset-bottom, 0px)))
@@ -54,17 +55,17 @@
   .search:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
   svg.i { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
 
-  /* Thanh tab và nút làm mới dùng chung một hàng. */
-  .toolbar { display: flex; align-items: center; gap: 10px; }
-  .toolbar .tabs { flex: 1; min-width: 0; }
-  .icon-btn { width: 44px; height: 44px; border-radius: 12px; border: 0; background: transparent; color: var(--accent);
+  .page-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 20px 17px; }
+  .eyebrow { font-size: 12px; color: var(--sub); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 4px; }
+  .page-head h1 { margin: 0; font-size: 29px; line-height: 1.16; font-weight: 700; letter-spacing: -.035em; }
+  .icon-btn { width: 44px; height: 44px; border-radius: 13px; border: 1px solid var(--sep); background: var(--section); color: var(--accent);
     display: grid; place-items: center; cursor: pointer; font-size: 19px; flex: none; }
   .icon-btn:active { background: var(--wash); }
-  .top { position: sticky; top: max(env(safe-area-inset-top, 0px), var(--tg-safe-area-inset-top, 0px), var(--tg-content-safe-area-inset-top, 0px)); z-index: 5; padding: 8px 16px 12px; background: color-mix(in srgb, var(--page) 88%, transparent);
+  .top { position: sticky; top: max(env(safe-area-inset-top, 0px), var(--tg-safe-area-inset-top, 0px), var(--tg-content-safe-area-inset-top, 0px)); z-index: 5; padding: 0 17px 4px; background: color-mix(in srgb, var(--page) 94%, transparent);
     -webkit-backdrop-filter: saturate(1.8) blur(14px); backdrop-filter: saturate(1.8) blur(14px); }
-  .tabs { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--wash); border-radius: 9px; padding: 2px; }
-  .tabs button { border: 0; background: transparent; padding: 7px 0; border-radius: 7px; font-size: 14px; font-weight: 500; cursor: pointer; color: var(--text); min-height: 44px; }
-  .tabs button[aria-selected="true"] { background: var(--section); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.14), 0 0 0 .5px rgba(0,0,0,.05); }
+  .tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; background: var(--wash); border-radius: 13px; padding: 4px; }
+  .tabs button { border: 0; background: transparent; padding: 7px 0; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; color: var(--sub); min-height: 44px; }
+  .tabs button[aria-selected="true"] { background: var(--section); color: var(--text); font-weight: 600; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
   :root[data-theme="dark"] .tabs button:is([aria-selected="true"], [aria-pressed="true"]) { background: rgba(255,255,255,.16); box-shadow: none; }
   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tabs button:is([aria-selected="true"], [aria-pressed="true"]) { background: rgba(255,255,255,.16); box-shadow: none; } }
 
@@ -78,21 +79,22 @@
 
   /* Ô tóm tắt (tab Thống kê) */
   .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 4px 16px 0; }
-  .stat { min-width: 0; background: var(--section); border-radius: 14px; padding: 12px; box-shadow: var(--shadow); }
-  .stat .v { font-size: 28px; font-weight: 600; line-height: 1.05; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
-  .stat .l { font-size: 14px; color: var(--sub); margin-top: 4px; display: flex; gap: 5px; align-items: center; }
-  .stat .d { font-size: 12.5px; color: var(--hint); margin-top: 3px; }
+  .stat { min-width: 0; min-height: 129px; background: var(--section); border: 1px solid var(--sep); border-radius: 17px; padding: 16px 14px; box-shadow: var(--shadow); }
+  .stat .v { font-size: 31px; font-weight: 700; line-height: 1.15; letter-spacing: -.035em; font-variant-numeric: tabular-nums; }
+  .stat .l { font-size: 12.5px; font-weight: 600; color: var(--sub); margin-top: 7px; display: flex; gap: 5px; align-items: center; }
+  .stat .d { font-size: 12px; color: var(--hint); margin-top: 7px; }
   .stat .d.up-good { color: var(--good-text); }
 
   /* Khối ngày / nhóm */
-  .sec-h { display: flex; align-items: baseline; gap: 8px; padding: 18px 20px 8px; }
-  .sec-h .nm { font-size: 18px; font-weight: 600; letter-spacing: -.01em; }
-  .sec-h .dt { font-size: 15px; color: var(--hint); }
-  .sec-h .cnt { font-size: 15px; color: var(--hint); }
+  .sec-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 9px; padding: 24px 19px 11px; }
+  .sec-h .nm { font-size: 20px; font-weight: 700; line-height: 1.2; letter-spacing: -.025em; }
+  .sec-h .dt { font-size: 13px; color: var(--sub); }
+  .sec-h .cnt { font-size: 12px; font-weight: 600; color: var(--sub); background: var(--wash); border-radius: 999px; padding: 3px 8px; }
   .sec-h .ico { align-self: center; }
   .sec-h.crit .nm { color: var(--critical); }
+  .sec-h.crit .cnt { color: var(--critical); background: color-mix(in srgb, var(--critical) 8%, var(--section)); }
   .sec-h.small { padding-top: 18px; } .sec-h.small .nm { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; color: var(--header-text); }
-  .sec { background: var(--section); border-radius: 14px; margin: 0 16px; overflow: hidden; box-shadow: var(--shadow); }
+  .sec { background: var(--section); border: 1px solid var(--sep); border-radius: 18px; margin: 0 17px; overflow: hidden; box-shadow: var(--shadow); }
   .sec-f { font-size: 13px; color: var(--hint); padding: 8px 22px 0; }
 
   /* Một dòng việc */
@@ -100,7 +102,7 @@
   .item + .item::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; border-top: .5px solid var(--sep); }
   .item .lead { width: 30px; flex: none; display: grid; place-items: center; }
   .item .body { flex: 1; min-width: 0; }
-  .item .t { overflow-wrap: anywhere; font-weight: 400; }
+  .item .t { overflow-wrap: anywhere; font-size: 14.5px; font-weight: 600; }
   .item .s { font-size: 13.5px; color: var(--hint); margin-top: 2px; overflow-wrap: anywhere; }
   .item .tail { flex: none; font-size: 13.5px; color: var(--hint); text-align: right; font-variant-numeric: tabular-nums; }
   a.item { color: inherit; text-decoration: none; cursor: pointer; }
@@ -112,33 +114,29 @@
   .tile.person { background: var(--person); } .tile.draft { background: var(--hint); } .tile.note { background: #5e5ce6; } .tile.crit { background: var(--critical); }
 
   /* Dòng lịch/việc trong "Tuần này": giờ bên trái · vạch màu · nội dung · nút xong */
-  .row { padding: 10px 6px 10px 12px; gap: 8px; align-items: stretch; min-height: 64px; }
-  .row .when { width: 44px; flex: none; display: flex; flex-direction: column; justify-content: center; font-variant-numeric: tabular-nums; }
-  .row .when .a { font-size: 16px; font-weight: 600; line-height: 1.2; }
-  .row .when .b { font-size: 13px; color: var(--hint); line-height: 1.25; margin-top: 1px; }
-  .row .when .a.sm { font-size: 12.5px; font-weight: 500; color: var(--hint); white-space: nowrap; }
-  .row .when .a.late { color: var(--critical); font-size: 14px; }
-  .row .bar { width: 4px; border-radius: 2px; flex: none; background: var(--event); }
+  .row { padding: 15px 7px 15px 13px; gap: 12px; align-items: stretch; min-height: 84px; }
+  .row .bar { width: 3px; border-radius: 3px; flex: none; background: var(--event); }
   .row.task .bar { background: var(--task); }
   .row.over .bar { background: var(--critical); }
   .row .main { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
-  .row .title-toggle { border: 0; background: transparent; padding: 0; min-height: 44px; text-align: left; cursor: pointer; }
-  .row .ttl { font-weight: 400; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
-  .row .expand-label { font-size: 12px; color: var(--accent); }
-  .row.open .ttl { -webkit-line-clamp: unset; line-clamp: unset; }
-  .row .meta { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; margin-top: 3px; font-size: 13.5px; color: var(--hint); }
+  .row .ttl { font-size: 15.5px; line-height: 1.42; font-weight: 600; letter-spacing: -.01em; overflow-wrap: anywhere; }
+  .detail-btn { align-self: flex-start; min-height: 44px; border: 0; background: transparent; padding: 8px 0 0; text-align: left; font-size: 12.5px; font-weight: 600; color: var(--accent); cursor: pointer; }
+  .row .meta { display: flex; flex-wrap: wrap; gap: 5px 8px; align-items: center; margin-top: 7px; font-size: 12.5px; line-height: 1.35; color: var(--sub); }
+  .row .meta .meeting { color: var(--accent); font-weight: 600; }
+  .row .meta > span + span:not(.confirm-hint)::before { content: "·"; margin-right: 8px; color: var(--hint); }
   .row .meta .late { color: var(--critical); }
   .who { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px 0 6px; border-radius: 11px; font-size: 13px; font-weight: 600;
     background: color-mix(in srgb, var(--person) 14%, transparent); color: var(--person); max-width: 100%; }
   .who .i { font-size: 13px; }
   .row .act { width: 44px; flex: none; display: grid; place-items: center; }
-  .row .act.none { width: 10px; }
   .meta:empty { display: none; }
   .item .act { width: 44px; margin-right: -8px; display: grid; place-items: center; flex: none; }
   .row .act { margin-right: 0; }
 
-  .today-empty { display: flex; align-items: center; gap: 12px; padding: 18px 16px; color: var(--sub); font-size: 15px; }
-  .today-empty .tile { background: var(--good); border-radius: 50%; width: 26px; height: 26px; font-size: 14px; }
+  .today-empty { display: flex; align-items: center; gap: 13px; padding: 19px 16px; color: var(--text); }
+  .today-empty .tile { background: color-mix(in srgb, var(--accent) 8%, var(--section)); color: var(--accent); border-radius: 12px; width: 36px; height: 36px; font-size: 20px; }
+  .today-empty strong { display: block; font-size: 14.5px; font-weight: 600; margin-bottom: 3px; }
+  .today-empty p { margin: 0; font-size: 12.5px; line-height: 1.4; color: var(--sub); }
   .quiet { margin: 14px 20px 0; font-size: 13.5px; color: var(--hint); line-height: 1.5; }
 
   /* Vòng tròn đánh dấu xong — chạm 1 lần hỏi lại, chạm lần 2 xác nhận. Vùng chạm 44px. */
@@ -156,16 +154,18 @@
 
   /* Bộ lọc dạng chip + ô tìm */
   /* Dải chọn: Của tôi | Đã giao | Tất cả (dưới tab, ẩn ở tab Thống kê) */
-  .own { display: flex; gap: 8px; margin-top: 10px; }
+  .own { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
   .own[hidden] { display: none; }
-  .own button { flex: 1; border: 0; background: var(--section); color: var(--text); border-radius: 18px; min-height: 44px; padding: 0 10px; font-size: 14px; font-weight: 500; cursor: pointer; box-shadow: var(--shadow); white-space: nowrap; }
-  .own button[aria-pressed="true"] { background: var(--button); color: var(--accent-text); font-weight: 600; }
+  .own button { border: 1px solid var(--sep); background: var(--section); color: var(--sub); border-radius: 999px; min-height: 44px; padding: 9px 15px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .own button[aria-pressed="true"] { background: var(--selected-bg); border-color: color-mix(in srgb, var(--accent) 35%, var(--section)); color: var(--selected-text); }
   .own .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--critical); margin-left: 6px; vertical-align: middle; }
   .av { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: var(--person); color: #fff; font-size: 10.5px; font-weight: 700; line-height: 1; }
+  .item .person-lead { width: 39px; }
+  .person-lead .av { width: 39px; height: 39px; border-radius: 13px; font-size: 14px; background: color-mix(in srgb, var(--person) 10%, var(--section)); color: var(--person); }
   .chips { display: flex; gap: 8px; overflow-x: auto; padding: 4px 16px 2px; scrollbar-width: none; }
   .chips::-webkit-scrollbar { display: none; }
   .chip { flex: none; border: 0; background: var(--section); color: var(--text); border-radius: 18px; min-height: 44px; padding: 0 14px; font-size: 14px; font-weight: 500; cursor: pointer; box-shadow: var(--shadow); }
-  .chip[aria-pressed="true"] { background: var(--button); color: var(--accent-text); font-weight: 600; }
+  .chip[aria-pressed="true"] { background: var(--selected-bg); color: var(--selected-text); font-weight: 600; }
   .search { margin: 6px 16px 10px; display: flex; align-items: center; gap: 8px; background: var(--wash); border-radius: 11px; padding: 0 10px; color: var(--hint); }
   .search input { border: 0; outline: 0; background: transparent; padding: 10px 0; flex: 1; min-width: 0; color: var(--text); }
   .more { display: block; width: calc(100% - 32px); margin: 12px 16px 0; border: 0; background: var(--section); color: var(--accent); border-radius: 14px; padding: 14px; cursor: pointer; font-weight: 500; box-shadow: var(--shadow); }
@@ -196,8 +196,15 @@
   details.data table { border-collapse: collapse; width: 100%; margin-top: 4px; }
   details.data td, details.data th { padding: 4px 6px; border-bottom: .5px solid var(--sep); text-align: left; font-weight: 500; }
   details.data .num { text-align: right; font-variant-numeric: tabular-nums; }
-  .seg { display: flex; justify-content: center; padding: 4px 16px 0; }
-  .seg .tabs { width: 100%; max-width: 340px; }
+  .seg { display: flex; justify-content: center; padding: 18px 17px 0; }
+  .seg .tabs { width: 100%; }
+  .detail-sheet { width: min(430px, calc(100% - 24px)); max-height: 85dvh; margin: auto auto 0; padding: 14px 22px calc(24px + max(env(safe-area-inset-bottom, 0px), var(--tg-safe-area-inset-bottom, 0px), var(--tg-content-safe-area-inset-bottom, 0px))); border: 1px solid var(--sep); border-radius: 22px 22px 0 0; background: var(--section); color: var(--text); box-shadow: 0 -10px 40px rgba(0,0,0,.12); }
+  .detail-sheet::backdrop { background: rgba(0,0,0,.35); }
+  .sheet-handle { height: 5px; width: 38px; border-radius: 10px; background: var(--sep); margin: 0 auto 19px; }
+  .detail-sheet h2 { font-size: 19px; line-height: 1.4; margin: 0 0 12px; overflow-wrap: anywhere; }
+  .detail-sheet p { font-size: 14px; line-height: 1.5; color: var(--sub); white-space: pre-line; overflow-wrap: anywhere; }
+  .sheet-close { width: 100%; min-height: 44px; margin-top: 15px; padding: 13px; border: 0; border-radius: 13px; background: var(--button); color: var(--accent-text); font-weight: 600; cursor: pointer; }
+  @media (min-width: 600px) { .detail-sheet { margin: auto; border-radius: 22px; } }
 
   .tip { position: fixed; z-index: 20; pointer-events: none; background: var(--section); color: var(--text); border-radius: 10px;
     padding: 8px 10px; font-size: 12.5px; box-shadow: 0 4px 18px rgba(0,0,0,.18); min-width: 110px; }
@@ -207,7 +214,7 @@
   .tip .r span { color: var(--sub); }
   .toast { position: fixed; left: 50%; bottom: calc(20px + max(env(safe-area-inset-bottom, 0px), var(--tg-safe-area-inset-bottom, 0px), var(--tg-content-safe-area-inset-bottom, 0px))); transform: translateX(-50%); background: #28282a; color: #fff;
     max-width: calc(100% - 32px); overflow-wrap: anywhere; padding: 11px 18px; border-radius: 22px; font-size: 14.5px; font-weight: 500; z-index: 30; box-shadow: 0 6px 24px rgba(0,0,0,.25); }
-  .tabs button[aria-pressed="true"] { background: var(--section); font-weight: 600; }
+  .tabs button[aria-pressed="true"] { background: var(--section); color: var(--text); font-weight: 600; }
   .icon-btn:disabled { opacity: 1; cursor: progress; }
   .icon-btn:disabled svg { animation: reload-spin 1s linear infinite; }
   @keyframes reload-spin { to { transform: rotate(360deg); } }
@@ -217,20 +224,27 @@
 </head>
 <body>
 <div class="app">
+  <header class="page-head">
+    <div><div class="eyebrow">Công việc &amp; lịch hẹn</div><h1 id="screenHeading">Tổng quan</h1></div>
+    <button class="icon-btn" id="btnRefresh" type="button" aria-label="Làm mới" title="Làm mới"></button>
+  </header>
   <div class="top">
-    <div class="toolbar">
       <div class="tabs" role="tablist">
         <button type="button" role="tab" data-tab="week" aria-selected="true">Tuần này</button>
         <button type="button" role="tab" data-tab="stats" aria-selected="false">Thống kê</button>
         <button type="button" role="tab" data-tab="all" aria-selected="false">Tất cả</button>
       </div>
-      <button class="icon-btn" id="btnRefresh" type="button" aria-label="Làm mới" title="Làm mới"></button>
-    </div>
     <div class="own" id="own" role="group" aria-label="Lọc theo người làm"></div>
   </div>
   <main id="main"></main>
 </div>
 <div class="tip" id="tip" role="tooltip" hidden></div>
+<dialog class="detail-sheet" id="detailSheet" aria-labelledby="detailTitle">
+  <div class="sheet-handle" aria-hidden="true"></div>
+  <h2 id="detailTitle"></h2>
+  <p id="detailText"></p>
+  <form method="dialog"><button class="sheet-close">Đóng</button></form>
+</dialog>
 
 <script>
 const _P = new URLSearchParams(location.search);
@@ -297,6 +311,16 @@ function showTip(ev, head, rows) {
 }
 const hideTip = () => { tip.hidden = true; };
 function toast(msg) { const t = el('div', { class: 'toast', role: 'status', text: msg }); document.body.appendChild(t); setTimeout(() => t.remove(), 3500); }
+function showDetails(title, text) {
+  document.getElementById('detailTitle').textContent = title;
+  document.getElementById('detailText').textContent = text;
+  document.getElementById('detailSheet').showModal();
+}
+document.getElementById('detailSheet').addEventListener('click', ev => {
+  if (ev.target !== ev.currentTarget) return;
+  const bounds = ev.currentTarget.getBoundingClientRect();
+  if (ev.clientX < bounds.left || ev.clientX > bounds.right || ev.clientY < bounds.top || ev.clientY > bounds.bottom) ev.currentTarget.close();
+});
 
 // ============================================================ theme Telegram
 /** Telegram truyền màu theme qua #tgWebAppThemeParams trên URL; trang Apps Script đọc bằng google.script.url. */
@@ -368,6 +392,14 @@ function ensureContrast() {
   };
   ['--text', '--hint', '--sub', '--header-text', '--accent', '--critical', '--good-text'].forEach(name => fix(name, surfaces));
   fix('--accent-text', [get('--button')]);
+  const accent = get('--accent'), surface = get('--section');
+  if (/^#[a-f\d]{6}$/i.test(accent) && /^#[a-f\d]{6}$/i.test(surface)) {
+    const a = accent.match(/[a-f\d]{2}/gi), b = surface.match(/[a-f\d]{2}/gi);
+    const tint = '#' + a.map((v, k) => Math.round(parseInt(v, 16) * 0.1 + parseInt(b[k], 16) * 0.9).toString(16).padStart(2, '0')).join('');
+    root.style.setProperty('--selected-bg', tint);
+    root.style.setProperty('--selected-text', accent);
+    fix('--selected-text', [tint]);
+  }
 }
 
 // ============================================================ gọi server
@@ -452,7 +484,8 @@ function item(opts) {
   const sub = opts.sub ? el('div', { class: 's', text: opts.sub }) : null;
   const subHost = sub || el('div', { class: 's' });
   return el('div', { class: 'item' },
-    opts.tile ? el('div', { class: 'lead' }, tile(opts.tile[0], opts.tile[1])) : null,
+    opts.person ? el('div', { class: 'lead person-lead' }, avatar(opts.person)) :
+      (opts.tile ? el('div', { class: 'lead' }, tile(opts.tile[0], opts.tile[1])) : null),
     el('div', { class: 'body' }, el('div', { class: 't', text: opts.title }), sub || (opts.ref ? subHost : null)),
     opts.tail ? el('div', { class: 'tail' }, opts.tail) : null,
     opts.ref ? el('div', { class: 'act' }, check(opts.ref, subHost)) : null);
@@ -466,37 +499,30 @@ const WDN = { CN: 'Chủ nhật', T2: 'Thứ Hai', T3: 'Thứ Ba', T4: 'Thứ T�
 /** Tiêu đề do server ghép dạng "👤 Huy · việc" → tách tên người để hiện thành nhãn riêng. */
 function parseWho(title) { const m = /^👤\s*(.+?)\s·\s([\s\S]*)$/.exec(title); return m ? { who: m[1], title: m[2] } : { who: '', title: title }; }
 
-/** Dòng lịch/việc: [giờ] [vạch màu] [tiêu đề (tối đa 2 dòng, chạm để mở rộng) + nhãn] [✓]. */
-function weekRow(r, over) {
+/** Dòng lịch/việc ưu tiên tiêu đề; thời gian và người nhận nằm trong dòng phụ. */
+function weekRow(r, over, dayLabel) {
   const w = parseWho(r.title), isEv = r.kind === 'event';
-  let a, b = '', cls = '';
-  let note = (r.note || '').replace(/^\(|\)$/g, '');
-  if (over) {
-    a = 'Trễ'; cls = 'late';
-    const md = /(\d{2}\/\d{2})/.exec(note), mt = /(\d{1,2}:\d{2})/.exec(note);
-    b = md ? md[1] : '';
-    note = /Google Tasks/i.test(note) ? 'Google Tasks' : (mt ? 'Hạn ' + mt[1] : '');
-  }
-  else if (isEv && /–/.test(r.time || '')) { const t = r.time.split('–'); a = t[0]; b = t[1]; }
-  else if (r.time && r.time !== 'Cả ngày') { a = r.time; b = 'Hạn'; }
-  else { a = 'Cả ngày'; cls = 'sm'; }
-  if (!over && /^trong ngày$/i.test(note)) note = '';
+  const note = (r.note || '').replace(/^\(|\)$/g, '');
+  const source = DATA.items.find(i => i.id === r.ref);
+  const daysLate = source && source.d ? Math.max(0, dayIdx(DATA.now) - dayIdx(source.d)) : 0;
+  const status = over ? (daysLate ? 'Trễ ' + daysLate + ' ngày' : 'Quá hạn') : '';
+  const timing = over ? (source && source.d ? 'Hạn ' + (source.ht ? fmtDT(source.d) : fmtDay(dayIdx(source.d))) : note)
+    : (isEv ? '' : 'Hạn ') + (r.time || 'Cả ngày');
   const live = /đang diễn ra/i.test(note);
   const meta = el('div', { class: 'meta' },
+    status ? el('span', { class: 'late', text: status }) : null,
+    el('span', { class: isEv ? 'meeting' : '', text: timing }),
+    isEv && dayLabel ? el('span', { text: dayLabel }) : null,
     w.who ? el('span', { class: 'who' }, avatar(w.who), w.who) : null,
-    live ? el('span', { class: 'live', text: 'Đang diễn ra' }) : (note ? el('span', { class: over ? 'late' : '', text: note }) : null));
-  const title = el('button', { type: 'button', class: 'title-toggle', 'aria-expanded': 'false' },
-    el('span', { class: 'ttl', text: w.title }), el('span', { class: 'expand-label', text: 'Xem đầy đủ' }));
+    live ? el('span', { class: 'live', text: 'Đang diễn ra' }) :
+      (!over && note && !/^trong ngày$/i.test(note) ? el('span', { text: note }) : null));
+  const details = el('button', { type: 'button', class: 'detail-btn', 'aria-haspopup': 'dialog',
+    text: isEv ? 'Xem lịch hẹn' : 'Xem chi tiết', onclick: () =>
+      showDetails(w.title, [dayLabel, status, timing, note, w.who ? 'Người nhận: ' + w.who : '', source ? 'Nguồn: ' + source.src : ''].filter(Boolean).join('\n')) });
   const row = el('div', { class: 'item row ' + (over ? 'over ' : '') + (isEv ? 'event' : 'task') },
-    el('div', { class: 'when' }, el('div', { class: 'a ' + cls, text: a }), b ? el('div', { class: 'b', text: b }) : null),
     el('i', { class: 'bar' }),
-    el('div', { class: 'main' }, title, meta),
-    el('div', { class: 'act' + (r.ref ? '' : ' none') }, r.ref ? check(r.ref, meta) : null));
-  title.addEventListener('click', () => {
-    const expanded = row.classList.toggle('open');
-    title.setAttribute('aria-expanded', String(expanded));
-    title.querySelector('.expand-label').textContent = expanded ? 'Thu gọn' : 'Xem đầy đủ';
-  });
+    el('div', { class: 'main' }, el('div', { class: 'ttl', text: w.title }), meta, details),
+    r.ref ? el('div', { class: 'act' }, check(r.ref, meta)) : null);
   return row;
 }
 
@@ -530,7 +556,6 @@ function renderWeek(main) {
 
   // Dải tóm tắt: chỉ hiện mục có việc (không chiếm chỗ bằng số 0)
   const pills = [];
-  if (nOver) pills.push(el('span', { class: 'pill crit' }, el('b', { text: nf(nOver) }), 'quá hạn'));
   if (dueToday) pills.push(el('span', { class: 'pill' }, el('b', { text: nf(dueToday) }), 'hạn nay'));
   if (drafts.length) pills.push(el('span', { class: 'pill warn' }, el('b', { text: nf(drafts.length) }), 'nháp'));
   if (pills.length) main.append(el('div', { class: 'pills' }, pills));
@@ -545,11 +570,15 @@ function renderWeek(main) {
     const wd = parts[0], dm = parts[1] || '';
     if (!d.rows.length && k > 0) { emptyDays.push(wd + ' ' + dm); return; }
     const name = k === 0 ? 'Hôm nay' : k === 1 ? 'Ngày mai' : (WDN[wd] || wd);
-    const dateTxt = (k < 2 ? (WDN[wd] || wd) + ', ' : '') + dm;
+    const dateTxt = wd + ', ' + dm;
+    const nEvents = d.rows.filter(r => r.kind === 'event').length, nTasks = d.rows.length - nEvents;
+    const countTxt = [nEvents ? nEvents + ' lịch' : '', nTasks ? nTasks + ' việc' : ''].filter(Boolean).join(' · ') || '0 việc chờ';
     main.append(el('div', { class: 'sec-h' }, el('span', { class: 'nm', text: name }), el('span', { class: 'dt', text: dateTxt }),
-      d.rows.length ? el('span', { class: 'cnt', text: '· ' + d.rows.length }) : null));
-    main.append(d.rows.length ? el('div', { class: 'sec' }, d.rows.map(r => weekRow(r, false)))
-      : el('div', { class: 'sec' }, el('div', { class: 'today-empty' }, tile('check', 'done'), 'Hôm nay không còn việc hay lịch nào.')));
+      el('span', { class: 'cnt', text: countTxt })));
+    main.append(d.rows.length ? el('div', { class: 'sec' }, d.rows.map(r => weekRow(r, false, d.label)))
+      : el('div', { class: 'sec' }, el('div', { class: 'today-empty' }, tile('cal', 'event'),
+        el('div', {}, el('strong', { text: 'Không có việc đến hạn hôm nay' }),
+          el('p', { text: nOver ? nOver + ' việc quá hạn đang được hiển thị phía trên.' : 'Chưa có công việc hoặc lịch hẹn trong ngày.' })))));
   });
   const tail = [];
   if (emptyDays.length) tail.push('Còn trống: ' + emptyDays.join(' · '));
@@ -657,7 +686,7 @@ function renderStats(main) {
       return { n, open, late, done: dn.length, rate: dd.length ? Math.round(ot / dd.length * 100) : null };
     }).sort((a, b) => b.late - a.late || b.open - a.open || b.done - a.done);
     main.append(secH('Việc đã giao', names.length + ' người'), el('div', { class: 'sec' }, rowsS.map(r => item({
-      tile: ['person', 'person'], title: r.n,
+      person: r.n, title: r.n,
       sub: [r.open + ' đang làm', r.done + ' xong trong ' + R + ' ngày', r.rate != null ? r.rate + '% đúng hạn' : ''].filter(Boolean).join(' · '),
       tail: r.late ? el('span', { class: 'badge' }, ico('critical', '!'), r.late + ' trễ') : null }))),
       el('div', { class: 'sec-f', text: 'Xem chi tiết: tab Tất cả → lọc "👤 Đã giao", hoặc gõ /giao trong chat.' }));
@@ -800,6 +829,7 @@ function drawOwn() {
 }
 function render() {
   const main = document.getElementById('main');
+  document.getElementById('screenHeading').textContent = { week: 'Tổng quan', stats: 'Hiệu suất', all: 'Tất cả mục' }[UI.tab];
   document.querySelectorAll('.top .tabs button').forEach(b => {
     b.setAttribute('aria-selected', String(b.dataset.tab === UI.tab));
     b.tabIndex = b.dataset.tab === UI.tab ? 0 : -1;
