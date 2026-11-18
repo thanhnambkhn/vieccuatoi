@@ -15,6 +15,7 @@
   Không chứa khóa hay dữ liệu: khóa (k) và link Apps Script (a) nằm trong link mà bot gửi.
   • Mở trong Telegram (nút 📊 cạnh ô chat): tự lấy màu theme Telegram qua tgWebAppThemeParams.
   • Mở bằng trình duyệt: dùng màu sáng/tối theo hệ điều hành.
+  • Theme Telegram được kiểm tra tương phản; vùng an toàn và thao tác bàn phím được hỗ trợ.
 -->
 <style>
   :root {
@@ -59,21 +60,20 @@
   .icon-btn { width: 44px; height: 44px; border-radius: 12px; border: 0; background: transparent; color: var(--accent);
     display: grid; place-items: center; cursor: pointer; font-size: 19px; flex: none; }
   .icon-btn:active { background: var(--wash); }
-  .icon-btn:disabled { opacity: .45; }
   .top { position: sticky; top: max(env(safe-area-inset-top, 0px), var(--tg-safe-area-inset-top, 0px), var(--tg-content-safe-area-inset-top, 0px)); z-index: 5; padding: 4px 16px 8px; background: color-mix(in srgb, var(--page) 88%, transparent);
     -webkit-backdrop-filter: saturate(1.8) blur(14px); backdrop-filter: saturate(1.8) blur(14px); }
   .tabs { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--wash); border-radius: 9px; padding: 2px; }
-  .tabs button { border: 0; background: transparent; padding: 7px 0; border-radius: 7px; font-size: 14px; font-weight: 500; cursor: pointer; color: var(--text); min-height: 32px; }
+  .tabs button { border: 0; background: transparent; padding: 7px 0; border-radius: 7px; font-size: 14px; font-weight: 500; cursor: pointer; color: var(--text); min-height: 44px; }
   .tabs button[aria-selected="true"] { background: var(--section); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.14), 0 0 0 .5px rgba(0,0,0,.05); }
-  :root[data-theme="dark"] .tabs button[aria-selected="true"] { background: rgba(255,255,255,.16); box-shadow: none; }
-  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tabs button[aria-selected="true"] { background: rgba(255,255,255,.16); box-shadow: none; } }
+  :root[data-theme="dark"] .tabs button:is([aria-selected="true"], [aria-pressed="true"]) { background: rgba(255,255,255,.16); box-shadow: none; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tabs button:is([aria-selected="true"], [aria-pressed="true"]) { background: rgba(255,255,255,.16); box-shadow: none; } }
 
   /* Dải tóm tắt: chỉ hiện mục có số khác 0 */
   .pills { display: flex; flex-wrap: wrap; gap: 8px; padding: 6px 16px 0; }
   .pill { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 16px; font-size: 14px; font-weight: 500;
     background: var(--section); box-shadow: var(--shadow); color: var(--sub); }
   .pill b { font-size: 15px; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
-  .pill.crit { background: color-mix(in srgb, var(--critical) 13%, var(--section)); color: var(--critical); } .pill.crit b { color: var(--critical); }
+  .pill.crit { background: var(--section); color: var(--critical); } .pill.crit b { color: var(--critical); }
   .pill.warn { background: color-mix(in srgb, var(--warning) 15%, var(--section)); color: color-mix(in srgb, var(--warning) 80%, var(--text)); }
 
   /* Ô tóm tắt (tab Thống kê) */
@@ -86,7 +86,7 @@
 
   /* Khối ngày / nhóm */
   .sec-h { display: flex; align-items: baseline; gap: 8px; padding: 18px 20px 8px; }
-  .sec-h .nm { font-size: 21px; font-weight: 600; letter-spacing: -.015em; }
+  .sec-h .nm { font-size: 18px; font-weight: 600; letter-spacing: -.01em; }
   .sec-h .dt { font-size: 15px; color: var(--hint); }
   .sec-h .cnt { font-size: 15px; color: var(--hint); }
   .sec-h .ico { align-self: center; }
@@ -138,13 +138,13 @@
   .row .act { margin-right: 0; }
 
   .today-empty { display: flex; align-items: center; gap: 12px; padding: 18px 16px; color: var(--sub); font-size: 15px; }
-  .today-empty .tile { background: var(--good); border-radius: 50%; width: 34px; height: 34px; font-size: 18px; }
+  .today-empty .tile { background: var(--good); border-radius: 50%; width: 26px; height: 26px; font-size: 14px; }
   .quiet { margin: 14px 20px 0; font-size: 13.5px; color: var(--hint); line-height: 1.5; }
 
   /* Vòng tròn đánh dấu xong — chạm 1 lần hỏi lại, chạm lần 2 xác nhận. Vùng chạm 44px. */
   .chk { width: 44px; height: 44px; border-radius: 50%; border: 0; background: transparent; padding: 0; cursor: pointer; display: grid; place-items: center; position: relative; color: transparent; }
-  .chk::before { content: ""; width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--hint); transition: all .15s; position: absolute; }
-  .chk svg { position: relative; width: 15px; height: 15px; stroke-width: 3.2; }
+  .chk::before { content: ""; width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--hint); transition: all .15s; position: absolute; }
+  .chk svg { position: relative; width: 12px; height: 12px; stroke-width: 2.5; }
   .chk.armed { color: #fff; } .chk.armed::before { border-color: var(--good); background: var(--good); }
   .chk:disabled { opacity: .5; }
   .confirm-hint { color: var(--good-text); font-size: 13px; font-weight: 600; }
@@ -158,13 +158,13 @@
   /* Dải chọn: Của tôi | Đã giao | Tất cả (dưới tab, ẩn ở tab Thống kê) */
   .own { display: flex; gap: 8px; margin-top: 4px; }
   .own[hidden] { display: none; }
-  .own button { flex: 1; border: 0; background: var(--section); color: var(--text); border-radius: 18px; height: 34px; padding: 0 10px; font-size: 14px; font-weight: 500; cursor: pointer; box-shadow: var(--shadow); white-space: nowrap; }
+  .own button { flex: 1; border: 0; background: var(--section); color: var(--text); border-radius: 18px; min-height: 44px; padding: 0 10px; font-size: 14px; font-weight: 500; cursor: pointer; box-shadow: var(--shadow); white-space: nowrap; }
   .own button[aria-pressed="true"] { background: var(--button); color: var(--accent-text); font-weight: 600; }
   .own .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--critical); margin-left: 6px; vertical-align: middle; }
   .av { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: var(--person); color: #fff; font-size: 10.5px; font-weight: 700; line-height: 1; }
   .chips { display: flex; gap: 8px; overflow-x: auto; padding: 4px 16px 2px; scrollbar-width: none; }
   .chips::-webkit-scrollbar { display: none; }
-  .chip { flex: none; border: 0; background: var(--section); color: var(--text); border-radius: 18px; height: 34px; padding: 0 14px; font-size: 14px; font-weight: 500; cursor: pointer; box-shadow: var(--shadow); }
+  .chip { flex: none; border: 0; background: var(--section); color: var(--text); border-radius: 18px; min-height: 44px; padding: 0 14px; font-size: 14px; font-weight: 500; cursor: pointer; box-shadow: var(--shadow); }
   .chip[aria-pressed="true"] { background: var(--button); color: var(--accent-text); font-weight: 600; }
   .search { margin: 6px 16px 10px; display: flex; align-items: center; gap: 8px; background: var(--wash); border-radius: 11px; padding: 0 10px; color: var(--hint); }
   .search input { border: 0; outline: 0; background: transparent; padding: 10px 0; flex: 1; min-width: 0; color: var(--text); }
@@ -172,6 +172,7 @@
 
   /* Biểu đồ */
   .chart { padding: 14px 16px 12px; }
+  .chart svg { max-width: 100%; height: auto; }
   .chart h3 { margin: 0; font-size: 16px; font-weight: 600; }
   .chart .cap { font-size: 13px; color: var(--hint); margin: 2px 0 8px; }
   .legend { display: flex; gap: 14px; font-size: 13px; color: var(--sub); margin-bottom: 4px; }
@@ -204,8 +205,8 @@
   .tip .r { display: flex; align-items: center; gap: 8px; }
   .tip .r b { font-variant-numeric: tabular-nums; min-width: 20px; }
   .tip .r span { color: var(--sub); }
-  .toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); background: rgba(40,40,42,.92); color: #fff;
-    padding: 11px 18px; border-radius: 22px; font-size: 14.5px; font-weight: 500; z-index: 30; white-space: nowrap; box-shadow: 0 6px 24px rgba(0,0,0,.25); }
+  .toast { position: fixed; left: 50%; bottom: calc(20px + max(env(safe-area-inset-bottom, 0px), var(--tg-safe-area-inset-bottom, 0px), var(--tg-content-safe-area-inset-bottom, 0px))); transform: translateX(-50%); background: #28282a; color: #fff;
+    max-width: calc(100% - 32px); overflow-wrap: anywhere; padding: 11px 18px; border-radius: 22px; font-size: 14.5px; font-weight: 500; z-index: 30; box-shadow: 0 6px 24px rgba(0,0,0,.25); }
   .tabs button[aria-pressed="true"] { background: var(--section); font-weight: 600; }
   .icon-btn:disabled { opacity: 1; cursor: progress; }
   .icon-btn:disabled svg { animation: reload-spin 1s linear infinite; }
@@ -307,6 +308,8 @@ function applyTelegramTheme(hash) {
 }
 function applyThemeParams(p) {
   try {
+    ['--text', '--hint', '--sub', '--header-text', '--accent', '--button', '--accent-text', '--critical', '--good-text']
+      .forEach(name => document.documentElement.style.removeProperty(name));
     const set = (v, c) => { if (c) document.documentElement.style.setProperty(v, c); };
     set('--page', p.secondary_bg_color || p.bg_color);
     set('--section', p.section_bg_color || p.bg_color);
@@ -351,6 +354,16 @@ function ensureContrast() {
     if (backgrounds.every(bg => contrastRatio(color, bg) >= 4.5)) return;
     const best = ['#000000', '#ffffff'].sort((a, b) =>
       Math.min(...backgrounds.map(bg => contrastRatio(b, bg))) - Math.min(...backgrounds.map(bg => contrastRatio(a, bg))))[0];
+    const original = color.match(/[a-f\d]{2}/gi).map(v => parseInt(v, 16));
+    const target = best === '#000000' ? 0 : 255;
+    for (let step = 1; step <= 100; step++) {
+      const adjusted = '#' + original.map(v => Math.round(v + (target - v) * step / 100).toString(16).padStart(2, '0')).join('');
+      if (backgrounds.every(bg => contrastRatio(adjusted, bg) >= 4.5)) {
+        root.style.setProperty(name, adjusted);
+        return;
+      }
+    }
+    console.warn('Theme surfaces require different text colors', name, backgrounds);
     root.style.setProperty(name, best);
   };
   ['--text', '--hint', '--sub', '--header-text', '--accent', '--critical', '--good-text'].forEach(name => fix(name, surfaces));
@@ -753,7 +766,7 @@ function renderAll(main) {
   search.addEventListener('input', () => { UI.q = search.value; UI.limit = 40; drawList(); });
   main.append(el('div', { class: 'search' }, svgi('search'), search),
     el('div', { class: 'chips' }, FILTERS.map(f => el('button', { class: 'chip', type: 'button', 'aria-pressed': String(UI.filter === f[0]), text: f[1],
-      onclick: () => { UI.filter = f[0]; UI.limit = 40; render(); } }))), listHost);
+      onclick: () => { UI.filter = f[0]; UI.limit = 40; render(); document.querySelector('.chips [aria-pressed="true"]').focus(); } }))), listHost);
 
   const active = ['ACTIVE', 'OVERDUE', 'DELEG', 'DRAFT'].indexOf(UI.filter) >= 0;
   const base = DATA.items.filter(matchFilter).sort(active ? (a, b) => (a.d || 9e15) - (b.d || 9e15) : (a, b) => (b.c || 0) - (a.c || 0));
@@ -787,6 +800,14 @@ function drawOwn() {
 }
 function render() {
   const main = document.getElementById('main');
+  document.querySelectorAll('.top .tabs button').forEach(b => {
+    b.setAttribute('aria-selected', String(b.dataset.tab === UI.tab));
+    b.tabIndex = b.dataset.tab === UI.tab ? 0 : -1;
+    b.setAttribute('aria-controls', 'main');
+  });
+  main.setAttribute('role', 'tabpanel');
+  main.setAttribute('aria-label', document.querySelector('.top [aria-selected="true"]').textContent);
+  drawOwn();
   if (!DATA) {                                              // chưa có số liệu (trang riêng, lần mở đầu)
     setSubtitle('');
     main.replaceChildren(el('div', { class: 'quiet', style: 'text-align:center;margin-top:40px' }, LOADERR ? ['⚠️ ' + LOADERR, el('div', { style: 'margin-top:14px' },
@@ -796,14 +817,6 @@ function render() {
   const dd = dayDate(dayIdx(DATA.now));
   setSubtitle(WDN[WD[dd.getUTCDay()]] + ', ' + dd.getUTCDate() + ' tháng ' + (dd.getUTCMonth() + 1) +
     ' · cập nhật ' + DATA.nowLabel.split(' ')[0]);
-  document.querySelectorAll('.top .tabs button').forEach(b => {
-    b.setAttribute('aria-selected', String(b.dataset.tab === UI.tab));
-    b.tabIndex = b.dataset.tab === UI.tab ? 0 : -1;
-    b.setAttribute('aria-controls', 'main');
-  });
-  main.setAttribute('role', 'tabpanel');
-  main.setAttribute('aria-label', document.querySelector('.top [aria-selected="true"]').textContent);
-  drawOwn();
   main.replaceChildren();
   ({ week: renderWeek, stats: renderStats, all: renderAll })[UI.tab](main);
 }
