@@ -19,10 +19,10 @@
 <style>
   :root {
     /* Màu hệ thống kiểu iOS (sáng). Mở trong Telegram thì bị ghi đè bằng theme Telegram. */
-    --page: #f2f2f7; --section: #ffffff; --text: #000000; --hint: #8e8e93; --sub: #6c6c70;
-    --accent: #007aff; --accent-text: #ffffff; --sep: rgba(60,60,67,.16); --wash: rgba(118,118,128,.12);
-    --header-text: #6c6c70; --destructive: #ff3b30;
-    --event: #007aff; --task: #ff9500; --critical: #ff3b30; --person: #7d5bd0;
+    --page: #f2f2f7; --section: #ffffff; --text: #000000; --hint: #64646b; --sub: #6c6c70;
+    --accent: #005ec4; --accent-text: #ffffff; --button: #005ec4; --sep: rgba(60,60,67,.16); --wash: rgba(118,118,128,.12);
+    --header-text: #6c6c70; --destructive: #c62828;
+    --event: #007aff; --task: #ff9500; --critical: #c62828; --person: #7d5bd0;
     --good: #34c759; --good-text: #1d8a3b; --warning: #ff9500;
     --series-1: #2a78d6; --series-2: #eb6834; --grid: #e1e0d9; --axis: #c3c2b7;
     --shadow: 0 1px 2px rgba(0,0,0,.06);
@@ -41,10 +41,16 @@
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; background: var(--page); color: var(--text); }
-  body { font: 500 15.5px/1.35 -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, "Segoe UI", Roboto, sans-serif;
+  body { font: 400 16px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
     -webkit-font-smoothing: antialiased; letter-spacing: 0; }
   button, input { font: inherit; color: inherit; letter-spacing: inherit; }
-  .app { max-width: 640px; margin: 0 auto; padding-bottom: 40px; }
+  .app { max-width: 640px; margin: 0 auto;
+    padding: max(env(safe-area-inset-top, 0px), var(--tg-safe-area-inset-top, 0px), var(--tg-content-safe-area-inset-top, 0px))
+      max(env(safe-area-inset-right, 0px), var(--tg-safe-area-inset-right, 0px), var(--tg-content-safe-area-inset-right, 0px))
+      calc(24px + max(env(safe-area-inset-bottom, 0px), var(--tg-safe-area-inset-bottom, 0px), var(--tg-content-safe-area-inset-bottom, 0px)))
+      max(env(safe-area-inset-left, 0px), var(--tg-safe-area-inset-left, 0px), var(--tg-content-safe-area-inset-left, 0px)); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .search:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
   svg.i { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
 
   /* Thanh tab và nút làm mới dùng chung một hàng. */
@@ -54,7 +60,7 @@
     display: grid; place-items: center; cursor: pointer; font-size: 19px; flex: none; }
   .icon-btn:active { background: var(--wash); }
   .icon-btn:disabled { opacity: .45; }
-  .top { position: sticky; top: 0; z-index: 5; padding: 4px 16px 8px; background: color-mix(in srgb, var(--page) 88%, transparent);
+  .top { position: sticky; top: max(env(safe-area-inset-top, 0px), var(--tg-safe-area-inset-top, 0px), var(--tg-content-safe-area-inset-top, 0px)); z-index: 5; padding: 4px 16px 8px; background: color-mix(in srgb, var(--page) 88%, transparent);
     -webkit-backdrop-filter: saturate(1.8) blur(14px); backdrop-filter: saturate(1.8) blur(14px); }
   .tabs { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--wash); border-radius: 9px; padding: 2px; }
   .tabs button { border: 0; background: transparent; padding: 7px 0; border-radius: 7px; font-size: 14px; font-weight: 500; cursor: pointer; color: var(--text); min-height: 32px; }
@@ -94,7 +100,7 @@
   .item + .item::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; border-top: .5px solid var(--sep); }
   .item .lead { width: 30px; flex: none; display: grid; place-items: center; }
   .item .body { flex: 1; min-width: 0; }
-  .item .t { overflow-wrap: anywhere; font-weight: 500; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+  .item .t { overflow-wrap: anywhere; font-weight: 400; }
   .item .s { font-size: 13.5px; color: var(--hint); margin-top: 2px; overflow-wrap: anywhere; }
   .item .tail { flex: none; font-size: 13.5px; color: var(--hint); text-align: right; font-variant-numeric: tabular-nums; }
   a.item { color: inherit; text-decoration: none; cursor: pointer; }
@@ -106,8 +112,8 @@
   .tile.person { background: var(--person); } .tile.draft { background: var(--hint); } .tile.note { background: #5e5ce6; } .tile.crit { background: var(--critical); }
 
   /* Dòng lịch/việc trong "Tuần này": giờ bên trái · vạch màu · nội dung · nút xong */
-  .row { padding: 12px 6px 12px 16px; gap: 10px; align-items: stretch; min-height: 64px; }
-  .row .when { width: 50px; flex: none; display: flex; flex-direction: column; justify-content: center; font-variant-numeric: tabular-nums; }
+  .row { padding: 10px 6px 10px 12px; gap: 8px; align-items: stretch; min-height: 64px; }
+  .row .when { width: 44px; flex: none; display: flex; flex-direction: column; justify-content: center; font-variant-numeric: tabular-nums; }
   .row .when .a { font-size: 16px; font-weight: 600; line-height: 1.2; }
   .row .when .b { font-size: 13px; color: var(--hint); line-height: 1.25; margin-top: 1px; }
   .row .when .a.sm { font-size: 12.5px; font-weight: 500; color: var(--hint); white-space: nowrap; }
@@ -116,14 +122,16 @@
   .row.task .bar { background: var(--task); }
   .row.over .bar { background: var(--critical); }
   .row .main { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
-  .row .ttl { font-weight: 500; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+  .row .title-toggle { border: 0; background: transparent; padding: 0; min-height: 44px; text-align: left; cursor: pointer; }
+  .row .ttl { font-weight: 400; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+  .row .expand-label { font-size: 12px; color: var(--accent); }
   .row.open .ttl { -webkit-line-clamp: unset; line-clamp: unset; }
   .row .meta { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; margin-top: 3px; font-size: 13.5px; color: var(--hint); }
   .row .meta .late { color: var(--critical); }
   .who { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px 0 6px; border-radius: 11px; font-size: 13px; font-weight: 600;
     background: color-mix(in srgb, var(--person) 14%, transparent); color: var(--person); max-width: 100%; }
   .who .i { font-size: 13px; }
-  .row .act { width: 48px; flex: none; display: grid; place-items: center; }
+  .row .act { width: 44px; flex: none; display: grid; place-items: center; }
   .row .act.none { width: 10px; }
   .meta:empty { display: none; }
   .item .act { width: 44px; margin-right: -8px; display: grid; place-items: center; flex: none; }
@@ -151,13 +159,13 @@
   .own { display: flex; gap: 8px; margin-top: 4px; }
   .own[hidden] { display: none; }
   .own button { flex: 1; border: 0; background: var(--section); color: var(--text); border-radius: 18px; height: 34px; padding: 0 10px; font-size: 14px; font-weight: 500; cursor: pointer; box-shadow: var(--shadow); white-space: nowrap; }
-  .own button[aria-pressed="true"] { background: var(--accent); color: var(--accent-text); font-weight: 600; }
+  .own button[aria-pressed="true"] { background: var(--button); color: var(--accent-text); font-weight: 600; }
   .own .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--critical); margin-left: 6px; vertical-align: middle; }
   .av { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: var(--person); color: #fff; font-size: 10.5px; font-weight: 700; line-height: 1; }
   .chips { display: flex; gap: 8px; overflow-x: auto; padding: 4px 16px 2px; scrollbar-width: none; }
   .chips::-webkit-scrollbar { display: none; }
   .chip { flex: none; border: 0; background: var(--section); color: var(--text); border-radius: 18px; height: 34px; padding: 0 14px; font-size: 14px; font-weight: 500; cursor: pointer; box-shadow: var(--shadow); }
-  .chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-text); font-weight: 600; }
+  .chip[aria-pressed="true"] { background: var(--button); color: var(--accent-text); font-weight: 600; }
   .search { margin: 6px 16px 10px; display: flex; align-items: center; gap: 8px; background: var(--wash); border-radius: 11px; padding: 0 10px; color: var(--hint); }
   .search input { border: 0; outline: 0; background: transparent; padding: 10px 0; flex: 1; min-width: 0; color: var(--text); }
   .more { display: block; width: calc(100% - 32px); margin: 12px 16px 0; border: 0; background: var(--section); color: var(--accent); border-radius: 14px; padding: 14px; cursor: pointer; font-weight: 500; box-shadow: var(--shadow); }
@@ -198,7 +206,11 @@
   .tip .r span { color: var(--sub); }
   .toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); background: rgba(40,40,42,.92); color: #fff;
     padding: 11px 18px; border-radius: 22px; font-size: 14.5px; font-weight: 500; z-index: 30; white-space: nowrap; box-shadow: 0 6px 24px rgba(0,0,0,.25); }
-  .busy { opacity: .55; pointer-events: none; transition: opacity .15s; }
+  .tabs button[aria-pressed="true"] { background: var(--section); font-weight: 600; }
+  .icon-btn:disabled { opacity: 1; cursor: progress; }
+  .icon-btn:disabled svg { animation: reload-spin 1s linear infinite; }
+  @keyframes reload-spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .icon-btn:disabled svg { animation: none; } }
   .warn { margin: 12px 16px 0; padding: 12px 14px; border-radius: 14px; background: var(--section); font-size: 13.5px; color: var(--sub); }
 </style>
 </head>
@@ -283,7 +295,7 @@ function showTip(ev, head, rows) {
   tip.style.left = x + 'px'; tip.style.top = y + 'px';
 }
 const hideTip = () => { tip.hidden = true; };
-function toast(msg) { const t = el('div', { class: 'toast', text: msg }); document.body.appendChild(t); setTimeout(() => t.remove(), 2200); }
+function toast(msg) { const t = el('div', { class: 'toast', role: 'status', text: msg }); document.body.appendChild(t); setTimeout(() => t.remove(), 3500); }
 
 // ============================================================ theme Telegram
 /** Telegram truyền màu theme qua #tgWebAppThemeParams trên URL; trang Apps Script đọc bằng google.script.url. */
@@ -302,6 +314,7 @@ function applyThemeParams(p) {
     set('--hint', p.hint_color);
     set('--sub', p.subtitle_text_color || p.hint_color);
     set('--accent', p.accent_text_color || p.button_color || p.link_color);
+    set('--button', p.button_color);
     set('--accent-text', p.button_text_color);
     set('--sep', p.section_separator_color);
     set('--header-text', p.section_header_text_color || p.hint_color);
@@ -310,8 +323,38 @@ function applyThemeParams(p) {
     const bg = (p.bg_color || '#ffffff').replace('#', '');
     const lum = (0.299 * parseInt(bg.substr(0, 2), 16) + 0.587 * parseInt(bg.substr(2, 2), 16) + 0.114 * parseInt(bg.substr(4, 2), 16)) / 255;
     document.documentElement.setAttribute('data-theme', lum < 0.5 ? 'dark' : 'light');
+    ensureContrast();
     if (UI.tab === 'stats' && DATA) render();               // vẽ lại biểu đồ với màu mới
   } catch (e) { /* bỏ qua */ }
+}
+
+function colorLuminance(color) {
+  const rgb = color.match(/[a-f\d]{2}/gi).map(v => parseInt(v, 16) / 255)
+    .map(v => v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
+  return rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722;
+}
+function contrastRatio(a, b) {
+  const x = colorLuminance(a), y = colorLuminance(b);
+  return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+}
+function ensureContrast() {
+  const root = document.documentElement, css = getComputedStyle(root);
+  const get = name => css.getPropertyValue(name).trim();
+  const surfaces = [get('--page'), get('--section')];
+  // Telegram supplies hex colors. Keep theme colors unless readability requires a fallback.
+  const fix = (name, backgrounds) => {
+    const color = get(name);
+    if (![color, ...backgrounds].every(c => /^#[a-f\d]{6}$/i.test(c))) {
+      console.warn('Unsupported theme color', name, color);
+      return;
+    }
+    if (backgrounds.every(bg => contrastRatio(color, bg) >= 4.5)) return;
+    const best = ['#000000', '#ffffff'].sort((a, b) =>
+      Math.min(...backgrounds.map(bg => contrastRatio(b, bg))) - Math.min(...backgrounds.map(bg => contrastRatio(a, bg))))[0];
+    root.style.setProperty(name, best);
+  };
+  ['--text', '--hint', '--sub', '--header-text', '--accent', '--critical', '--good-text'].forEach(name => fix(name, surfaces));
+  fix('--accent-text', [get('--button')]);
 }
 
 // ============================================================ gọi server
@@ -338,7 +381,12 @@ function server(op, ref) {
   });
 }
 const errMsg = e => (e && e.message) ? e.message : String(e);
-function setBusy(b) { document.getElementById('main').classList.toggle('busy', b); document.getElementById('btnRefresh').disabled = b; }
+function setBusy(b) {
+  document.getElementById('main').setAttribute('aria-busy', String(b));
+  const button = document.getElementById('btnRefresh');
+  button.disabled = b;
+  button.setAttribute('aria-label', b ? 'Đang cập nhật' : 'Làm mới');
+}
 function refresh(silent) {
   if (!canCall()) return toast('Bản xem thử');
   if (DATA) setBusy(true);
@@ -424,12 +472,18 @@ function weekRow(r, over) {
   const meta = el('div', { class: 'meta' },
     w.who ? el('span', { class: 'who' }, avatar(w.who), w.who) : null,
     live ? el('span', { class: 'live', text: 'Đang diễn ra' }) : (note ? el('span', { class: over ? 'late' : '', text: note }) : null));
-  const row = el('div', { class: 'item row tap ' + (over ? 'over ' : '') + (isEv ? 'event' : 'task') },
+  const title = el('button', { type: 'button', class: 'title-toggle', 'aria-expanded': 'false' },
+    el('span', { class: 'ttl', text: w.title }), el('span', { class: 'expand-label', text: 'Xem đầy đủ' }));
+  const row = el('div', { class: 'item row ' + (over ? 'over ' : '') + (isEv ? 'event' : 'task') },
     el('div', { class: 'when' }, el('div', { class: 'a ' + cls, text: a }), b ? el('div', { class: 'b', text: b }) : null),
     el('i', { class: 'bar' }),
-    el('div', { class: 'main' }, el('div', { class: 'ttl', text: w.title }), meta),
+    el('div', { class: 'main' }, title, meta),
     el('div', { class: 'act' + (r.ref ? '' : ' none') }, r.ref ? check(r.ref, meta) : null));
-  row.addEventListener('click', ev => { if (!ev.target.closest('.chk')) row.classList.toggle('open'); });
+  title.addEventListener('click', () => {
+    const expanded = row.classList.toggle('open');
+    title.setAttribute('aria-expanded', String(expanded));
+    title.querySelector('.expand-label').textContent = expanded ? 'Thu gọn' : 'Xem đầy đủ';
+  });
   return row;
 }
 
@@ -529,7 +583,9 @@ function renderStats(main) {
 
   // Bộ lọc khoảng (phạm vi cho mọi số liệu bên dưới)
   main.append(el('div', { class: 'seg' }, el('div', { class: 'tabs', role: 'group', 'aria-label': 'Khoảng thời gian' },
-    [7, 30, 90].map(n => el('button', { type: 'button', 'aria-selected': String(n === R), text: n + ' ngày', onclick: () => { UI.range = n; render(); } })))));
+    [7, 30, 90].map(n => el('button', { type: 'button', 'aria-pressed': String(n === R), text: n + ' ngày', onclick: () => {
+      UI.range = n; render(); document.querySelector('.seg [aria-pressed="true"]').focus();
+    } })))));
 
   const delta = (cur, prev, upGood) => {
     const d = cur - prev;
@@ -725,7 +781,7 @@ function drawOwn() {
   host.replaceChildren(...[['mine', 'Của tôi'], ['deleg', 'Đã giao' + (dg.length ? ' · ' + dg.length : '')], ['all', 'Tất cả']].map(o => {
     const b = el('button', { type: 'button', 'aria-pressed': String(UI.own === o[0]), text: o[1] });
     if (o[0] === 'deleg' && late) b.append(el('span', { class: 'dot', 'aria-label': late + ' việc trễ' }));
-    b.addEventListener('click', () => { UI.own = o[0]; saveOwn(o[0]); UI.limit = 40; render(); scrollTo(0, 0); });
+    b.addEventListener('click', () => { UI.own = o[0]; saveOwn(o[0]); UI.limit = 40; render(); document.querySelector('.own [aria-pressed="true"]').focus(); scrollTo(0, 0); });
     return b;
   }));
 }
@@ -740,7 +796,13 @@ function render() {
   const dd = dayDate(dayIdx(DATA.now));
   setSubtitle(WDN[WD[dd.getUTCDay()]] + ', ' + dd.getUTCDate() + ' tháng ' + (dd.getUTCMonth() + 1) +
     ' · cập nhật ' + DATA.nowLabel.split(' ')[0]);
-  document.querySelectorAll('.top .tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === UI.tab)));
+  document.querySelectorAll('.top .tabs button').forEach(b => {
+    b.setAttribute('aria-selected', String(b.dataset.tab === UI.tab));
+    b.tabIndex = b.dataset.tab === UI.tab ? 0 : -1;
+    b.setAttribute('aria-controls', 'main');
+  });
+  main.setAttribute('role', 'tabpanel');
+  main.setAttribute('aria-label', document.querySelector('.top [aria-selected="true"]').textContent);
   drawOwn();
   main.replaceChildren();
   ({ week: renderWeek, stats: renderStats, all: renderAll })[UI.tab](main);
@@ -750,22 +812,40 @@ function setSubtitle(text) {
   if (sub) sub.textContent = text;
 }
 document.querySelectorAll('.top .tabs button').forEach(b => b.addEventListener('click', () => { UI.tab = b.dataset.tab; hideTip(); render(); scrollTo(0, 0); }));
+document.querySelector('[role="tablist"]').setAttribute('aria-label', 'Bảng việc');
+document.querySelector('[role="tablist"]').addEventListener('keydown', ev => {
+  const tabs = Array.from(document.querySelectorAll('.top [role="tab"]'));
+  const index = tabs.indexOf(document.activeElement);
+  if (index < 0 || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(ev.key)) return;
+  ev.preventDefault();
+  const next = ev.key === 'Home' ? 0 : ev.key === 'End' ? tabs.length - 1 :
+    (index + (ev.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+  tabs[next].focus(); tabs[next].click();
+});
 document.getElementById('btnRefresh').appendChild(svgi('refresh'));
 document.getElementById('btnRefresh').addEventListener('click', () => refresh(false));
 let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (UI.tab === 'stats') render(); }, 150); });
 setInterval(() => { if (document.visibilityState === 'visible') refresh(true); }, 5 * 60000);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && FETCH_MODE) refresh(true); });
+ensureContrast();
 render();
-if (FETCH_MODE) {                                              // trang riêng: lấy số liệu ngay + nạp thư viện Telegram (đọc theme, mở rộng khung)
-  refresh(true);
+if (FETCH_MODE) refresh(true);
   const initTelegram = () => { try {
     const w = window.Telegram && window.Telegram.WebApp;
     if (!w) return;
+    applyThemeParams(w.themeParams);
+    const syncInsets = () => {
+      for (const [prefix, insets] of [['safe-area', w.safeAreaInset], ['content-safe-area', w.contentSafeAreaInset]]) {
+        if (insets) for (const side of ['top', 'right', 'bottom', 'left'])
+          document.documentElement.style.setProperty('--tg-' + prefix + '-inset-' + side, Math.max(0, Number(insets[side]) || 0) + 'px');
+      }
+    };
+    syncInsets();
+    w.onEvent('safeAreaChanged', syncInsets); w.onEvent('contentSafeAreaChanged', syncInsets);
     w.ready(); w.expand(); w.onEvent('themeChanged', () => applyThemeParams(w.themeParams));
-  } catch (e) { /* ngoài Telegram */ } };
+  } catch (e) { console.error('Telegram initialization failed', e); } };
   if (window.Telegram && window.Telegram.WebApp) initTelegram();
   else document.getElementById('tgWebAppScript').addEventListener('load', initTelegram, { once: true });
-}
 if (hasGAS() && google.script.url) google.script.url.getLocation(loc => applyTelegramTheme(loc.hash));
 else applyTelegramTheme(location.hash);                       // trang riêng / bản xem thử
 </script>
