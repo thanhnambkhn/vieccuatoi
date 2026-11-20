@@ -117,10 +117,11 @@
   .row .bar { width: 3px; border-radius: 3px; flex: none; background: var(--event); }
   .row.task .bar { background: var(--task); }
   .row.over .bar { background: var(--critical); }
-  .row .main { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+  .row .main { flex: 1; min-width: 0; display: block; }
   .row .ttl { font-size: 14px; line-height: 1.4; font-weight: 500; letter-spacing: -.01em; overflow-wrap: anywhere; }
   .detail-btn { align-self: flex-start; min-height: 44px; border: 0; background: transparent; padding: 6px 0 0; text-align: left; font-size: 12px; font-weight: 600; color: var(--accent); cursor: pointer; }
-  .row .meta { display: flex; flex-wrap: wrap; gap: 4px 7px; align-items: center; margin-top: 6px; font-size: 12px; line-height: 1.35; color: var(--sub); }
+  .row .detail-btn { float: right; min-height: 32px; margin: -2px 0 4px 8px; padding: 0 0 0 8px; }
+  .row .meta { clear: right; display: flex; flex-wrap: wrap; gap: 4px 7px; align-items: center; margin-top: 6px; font-size: 12px; line-height: 1.35; color: var(--sub); }
   .row .meta .meeting { color: var(--accent); font-weight: 600; }
   .row .meta > span + span:not(.confirm-hint)::before { content: "·"; margin-right: 8px; color: var(--hint); }
   .row .meta .late { color: var(--critical); }
@@ -544,7 +545,7 @@ function weekRow(r, over, dayLabel) {
         : showDetails(w.title, [dayLabel, status, timing, note, w.who ? 'Người nhận: ' + w.who : ''].filter(Boolean).join('\n')) });
   const row = el('div', { class: 'item row ' + (over ? 'over ' : '') + (isEv ? 'event' : 'task') },
     el('i', { class: 'bar' }),
-    el('div', { class: 'main' }, el('div', { class: 'ttl', text: w.title }), meta, details),
+    el('div', { class: 'main' }, details, el('div', { class: 'ttl', text: w.title }), meta),
     r.ref ? el('div', { class: 'act' }, check(r.ref, meta)) : null);
   return row;
 }
