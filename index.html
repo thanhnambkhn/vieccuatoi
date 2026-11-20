@@ -42,8 +42,8 @@
     --series-1: #3987e5; --series-2: #d95926; --grid: #2c2c2a; --axis: #383835; --wash: rgba(118,118,128,.24); --shadow: none;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { margin: 0; background: var(--page); color: var(--text); }
-  body { font: 400 15.5px/1.42 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
+  html, body { margin: 0; background: var(--page); color: var(--text); overscroll-behavior-y: contain; }
+  body { font: 400 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
     -webkit-font-smoothing: antialiased; letter-spacing: 0; }
   button, input { font: inherit; color: inherit; letter-spacing: inherit; }
   .app { max-width: 430px; margin: 0 auto;
@@ -55,77 +55,76 @@
   .search:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
   svg.i { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
 
-  .page-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 17px; }
-  .eyebrow { font-size: 11px; line-height: 1.3; color: var(--sub); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; margin-bottom: 2px; }
-  .page-head h1 { margin: 0; font-size: 22px; line-height: 1.2; font-weight: 700; letter-spacing: -.025em; }
   .icon-btn { width: 44px; height: 44px; border-radius: 13px; border: 1px solid var(--sep); background: var(--section); color: var(--accent);
     display: grid; place-items: center; cursor: pointer; font-size: 19px; flex: none; }
   .icon-btn:active { background: var(--wash); }
-  .top { position: sticky; top: max(env(safe-area-inset-top, 0px), var(--tg-safe-area-inset-top, 0px), var(--tg-content-safe-area-inset-top, 0px)); z-index: 5; padding: 0 17px 4px; background: color-mix(in srgb, var(--page) 94%, transparent);
+  .top { position: sticky; top: max(env(safe-area-inset-top, 0px), var(--tg-safe-area-inset-top, 0px), var(--tg-content-safe-area-inset-top, 0px)); z-index: 5; padding: 4px 16px 3px; background: color-mix(in srgb, var(--page) 94%, transparent);
     -webkit-backdrop-filter: saturate(1.8) blur(14px); backdrop-filter: saturate(1.8) blur(14px); }
-  .tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; background: var(--wash); border-radius: 13px; padding: 4px; }
-  .tabs button { border: 0; background: transparent; padding: 7px 0; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; color: var(--sub); min-height: 44px; }
+  .top-row { display: flex; align-items: center; gap: 6px; }
+  .top-row .tabs { flex: 1; min-width: 0; }
+  .tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; background: var(--wash); border-radius: 12px; padding: 3px; }
+  .tabs button { border: 0; background: transparent; padding: 5px 0; border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--sub); min-height: 34px; }
   .tabs button[aria-selected="true"] { background: var(--section); color: var(--text); font-weight: 600; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
   :root[data-theme="dark"] .tabs button:is([aria-selected="true"], [aria-pressed="true"]) { background: rgba(255,255,255,.16); box-shadow: none; }
   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tabs button:is([aria-selected="true"], [aria-pressed="true"]) { background: rgba(255,255,255,.16); box-shadow: none; } }
 
   /* Dải tóm tắt: chỉ hiện mục có số khác 0 */
-  .pills { display: flex; flex-wrap: wrap; gap: 8px; padding: 6px 16px 0; }
-  .pill { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 16px; font-size: 14px; font-weight: 500;
+  .pills { display: flex; flex-wrap: wrap; gap: 6px; padding: 4px 14px 0; }
+  .pill { display: inline-flex; align-items: center; gap: 5px; height: 30px; padding: 0 10px; border-radius: 15px; font-size: 13px; font-weight: 500;
     background: var(--section); box-shadow: var(--shadow); color: var(--sub); }
-  .pill b { font-size: 15px; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
+  .pill b { font-size: 14px; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
   .pill.crit { background: var(--section); color: var(--critical); } .pill.crit b { color: var(--critical); }
   .pill.warn { background: color-mix(in srgb, var(--warning) 15%, var(--section)); color: color-mix(in srgb, var(--warning) 80%, var(--text)); }
 
   /* Ô tóm tắt (tab Thống kê) */
-  .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 4px 16px 0; }
-  .stat { min-width: 0; min-height: 129px; background: var(--section); border: 1px solid var(--sep); border-radius: 17px; padding: 16px 14px; box-shadow: var(--shadow); }
-  .stat .v { font-size: 31px; font-weight: 700; line-height: 1.15; letter-spacing: -.035em; font-variant-numeric: tabular-nums; }
-  .stat .l { font-size: 12.5px; font-weight: 600; color: var(--sub); margin-top: 7px; display: flex; gap: 5px; align-items: center; }
-  .stat .d { font-size: 12px; color: var(--hint); margin-top: 7px; }
+  .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 4px 14px 0; }
+  .stat { min-width: 0; min-height: 116px; background: var(--section); border: 1px solid var(--sep); border-radius: 16px; padding: 14px 13px; box-shadow: var(--shadow); }
+  .stat .v { font-size: 28px; font-weight: 600; line-height: 1.15; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+  .stat .l { font-size: 12px; font-weight: 600; color: var(--sub); margin-top: 6px; display: flex; gap: 5px; align-items: center; }
+  .stat .d { font-size: 11.5px; color: var(--hint); margin-top: 6px; }
   .stat .d.up-good { color: var(--good-text); }
 
   /* Khối ngày / nhóm */
-  .sec-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 9px; padding: 24px 19px 11px; }
-  .sec-h .nm { font-size: 20px; font-weight: 700; line-height: 1.2; letter-spacing: -.025em; }
-  .sec-h .dt { font-size: 13px; color: var(--sub); }
-  .sec-h .cnt { font-size: 12px; font-weight: 600; color: var(--sub); background: var(--wash); border-radius: 999px; padding: 3px 8px; }
+  .sec-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 8px; padding: 20px 17px 9px; }
+  .sec-h .nm { font-size: 18px; font-weight: 600; line-height: 1.25; letter-spacing: -.02em; }
+  .sec-h .dt { font-size: 12.5px; color: var(--sub); }
+  .sec-h .cnt { font-size: 11.5px; font-weight: 600; color: var(--sub); background: var(--wash); border-radius: 999px; padding: 3px 7px; }
   .sec-h .ico { align-self: center; }
   .sec-h.crit .nm { color: var(--critical); }
   .sec-h.crit .cnt { color: var(--critical); background: color-mix(in srgb, var(--critical) 8%, var(--section)); }
-  .sec-h.small { padding-top: 18px; } .sec-h.small .nm { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; color: var(--header-text); }
-  .sec { background: var(--section); border: 1px solid var(--sep); border-radius: 18px; margin: 0 17px; overflow: hidden; box-shadow: var(--shadow); }
-  .sec-f { font-size: 13px; color: var(--hint); padding: 8px 22px 0; }
+  .sec-h.small { padding-top: 16px; } .sec-h.small .nm { font-size: 12.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; color: var(--header-text); }
+  .sec { background: var(--section); border: 1px solid var(--sep); border-radius: 16px; margin: 0 16px; overflow: hidden; box-shadow: var(--shadow); }
+  .sec-f { font-size: 12.5px; color: var(--hint); padding: 7px 18px 0; }
 
   /* Một dòng việc */
-  .item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; min-height: 56px; position: relative; }
-  .item + .item::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; border-top: .5px solid var(--sep); }
-  .item .lead { width: 30px; flex: none; display: grid; place-items: center; }
+  .item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; min-height: 54px; position: relative; }
+  .item + .item::before { content: ""; position: absolute; top: 0; left: 14px; right: 0; border-top: .5px solid var(--sep); }
+  .item .lead { width: 28px; flex: none; display: grid; place-items: center; }
   .item .body { flex: 1; min-width: 0; }
-  .item .t { overflow-wrap: anywhere; font-size: 14.5px; font-weight: 600; }
-  .item .s { font-size: 13.5px; color: var(--hint); margin-top: 2px; overflow-wrap: anywhere; }
-  .item .tail { flex: none; font-size: 13.5px; color: var(--hint); text-align: right; font-variant-numeric: tabular-nums; }
+  .item .t { overflow-wrap: anywhere; font-size: 14px; font-weight: 500; }
+  .item .s { font-size: 12.5px; color: var(--hint); margin-top: 2px; overflow-wrap: anywhere; }
+  .item .tail { flex: none; font-size: 12.5px; color: var(--hint); text-align: right; font-variant-numeric: tabular-nums; }
   a.item { color: inherit; text-decoration: none; cursor: pointer; }
   a.item:active, .item.tap:active { background: var(--wash); }
   .live { color: var(--critical); font-weight: 600; }
-  .empty { padding: 16px; color: var(--hint); font-size: 15px; }
-  .tile { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; color: #fff; font-size: 17px; background: var(--hint); }
+  .empty { padding: 14px; color: var(--hint); font-size: 14px; }
+  .tile { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; color: #fff; font-size: 16px; background: var(--hint); }
   .tile.event { background: var(--event); } .tile.task { background: var(--task); } .tile.done { background: var(--good); }
   .tile.person { background: var(--person); } .tile.draft { background: var(--hint); } .tile.note { background: #5e5ce6; } .tile.crit { background: var(--critical); }
 
   /* Dòng lịch/việc trong "Tuần này": giờ bên trái · vạch màu · nội dung · nút xong */
-  .row { padding: 15px 7px 15px 13px; gap: 12px; align-items: stretch; min-height: 84px; }
+  .row { padding: 12px 6px 12px 12px; gap: 10px; align-items: stretch; min-height: 76px; }
   .row .bar { width: 3px; border-radius: 3px; flex: none; background: var(--event); }
   .row.task .bar { background: var(--task); }
   .row.over .bar { background: var(--critical); }
   .row .main { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
-  .row .ttl { font-size: 15.5px; line-height: 1.42; font-weight: 600; letter-spacing: -.01em; overflow-wrap: anywhere; }
-  .detail-btn { align-self: flex-start; min-height: 44px; border: 0; background: transparent; padding: 8px 0 0; text-align: left; font-size: 12.5px; font-weight: 600; color: var(--accent); cursor: pointer; }
-  .row .meta { display: flex; flex-wrap: wrap; gap: 5px 8px; align-items: center; margin-top: 7px; font-size: 12.5px; line-height: 1.35; color: var(--sub); }
+  .row .ttl { font-size: 14px; line-height: 1.4; font-weight: 500; letter-spacing: -.01em; overflow-wrap: anywhere; }
+  .detail-btn { align-self: flex-start; min-height: 44px; border: 0; background: transparent; padding: 6px 0 0; text-align: left; font-size: 12px; font-weight: 600; color: var(--accent); cursor: pointer; }
+  .row .meta { display: flex; flex-wrap: wrap; gap: 4px 7px; align-items: center; margin-top: 6px; font-size: 12px; line-height: 1.35; color: var(--sub); }
   .row .meta .meeting { color: var(--accent); font-weight: 600; }
   .row .meta > span + span:not(.confirm-hint)::before { content: "·"; margin-right: 8px; color: var(--hint); }
   .row .meta .late { color: var(--critical); }
-  .who { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px 0 6px; border-radius: 11px; font-size: 13px; font-weight: 600;
+  .who { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 7px 0 5px; border-radius: 11px; font-size: 12.5px; font-weight: 600;
     background: color-mix(in srgb, var(--person) 14%, transparent); color: var(--person); max-width: 100%; }
   .who .i { font-size: 13px; }
   .row .act { width: 44px; flex: none; display: grid; place-items: center; }
@@ -133,11 +132,11 @@
   .item .act { width: 44px; margin-right: -8px; display: grid; place-items: center; flex: none; }
   .row .act { margin-right: 0; }
 
-  .today-empty { display: flex; align-items: center; gap: 13px; padding: 19px 16px; color: var(--text); }
-  .today-empty .tile { background: color-mix(in srgb, var(--accent) 8%, var(--section)); color: var(--accent); border-radius: 12px; width: 36px; height: 36px; font-size: 20px; }
-  .today-empty strong { display: block; font-size: 14.5px; font-weight: 600; margin-bottom: 3px; }
-  .today-empty p { margin: 0; font-size: 12.5px; line-height: 1.4; color: var(--sub); }
-  .quiet { margin: 14px 20px 0; font-size: 13.5px; color: var(--hint); line-height: 1.5; }
+  .today-empty { display: flex; align-items: center; gap: 12px; padding: 16px 14px; color: var(--text); }
+  .today-empty .tile { background: color-mix(in srgb, var(--accent) 8%, var(--section)); color: var(--accent); border-radius: 12px; width: 34px; height: 34px; font-size: 19px; }
+  .today-empty strong { display: block; font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+  .today-empty p { margin: 0; font-size: 12px; line-height: 1.4; color: var(--sub); }
+  .quiet { margin: 12px 18px 0; font-size: 13px; color: var(--hint); line-height: 1.45; }
 
   /* Vòng tròn đánh dấu xong — chạm 1 lần hỏi lại, chạm lần 2 xác nhận. Vùng chạm 44px. */
   .chk { width: 44px; height: 44px; border-radius: 50%; border: 0; background: transparent; padding: 0; cursor: pointer; display: grid; place-items: center; position: relative; color: transparent; }
@@ -145,96 +144,97 @@
   .chk svg { position: relative; width: 12px; height: 12px; stroke-width: 2.5; }
   .chk.armed { color: #fff; } .chk.armed::before { border-color: var(--good); background: var(--good); }
   .chk:disabled { opacity: .5; }
-  .confirm-hint { color: var(--good-text); font-size: 13px; font-weight: 600; }
+  .confirm-hint { color: var(--good-text); font-size: 12px; font-weight: 600; }
 
   /* Huy hiệu trạng thái: luôn có biểu tượng + chữ, không dùng màu đơn thuần */
   .ico { display: inline-grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; font-size: 10px; font-weight: 600; color: #fff; flex: none; }
   .ico-critical { background: var(--critical); } .ico-good { background: var(--good); } .ico-warning { background: var(--warning); color: #0b0b0b; }
-  .badge { display: inline-flex; gap: 4px; align-items: center; font-size: 13px; color: var(--sub); white-space: nowrap; }
+  .badge { display: inline-flex; gap: 4px; align-items: center; font-size: 12.5px; color: var(--sub); white-space: nowrap; }
 
   /* Bộ lọc dạng chip + ô tìm */
   /* Dải chọn: Của tôi | Đã giao | Tất cả (dưới tab, ẩn ở tab Thống kê) */
-  .own { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .own { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
   .own[hidden] { display: none; }
-  .own button { border: 1px solid var(--sep); background: var(--section); color: var(--sub); border-radius: 999px; min-height: 44px; padding: 9px 15px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .own button { border: 1px solid var(--sep); background: var(--section); color: var(--sub); border-radius: 999px; min-height: 34px; padding: 5px 12px; font-size: 12.5px; font-weight: 600; cursor: pointer; white-space: nowrap; }
   .own button[aria-pressed="true"] { background: var(--selected-bg); border-color: color-mix(in srgb, var(--accent) 35%, var(--section)); color: var(--selected-text); }
   .own .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--critical); margin-left: 6px; vertical-align: middle; }
   .av { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: var(--person); color: #fff; font-size: 10.5px; font-weight: 700; line-height: 1; }
-  .item .person-lead { width: 39px; }
-  .person-lead .av { width: 39px; height: 39px; border-radius: 13px; font-size: 14px; background: color-mix(in srgb, var(--person) 10%, var(--section)); color: var(--person); }
-  .chips { display: flex; gap: 8px; overflow-x: auto; padding: 4px 16px 2px; scrollbar-width: none; }
+  .item .person-lead { width: 36px; }
+  .person-lead .av { width: 36px; height: 36px; border-radius: 12px; font-size: 13px; background: color-mix(in srgb, var(--person) 10%, var(--section)); color: var(--person); }
+  .chips { display: flex; gap: 6px; overflow-x: auto; padding: 4px 14px 2px; scrollbar-width: none; }
   .chips::-webkit-scrollbar { display: none; }
-  .chip { flex: none; border: 0; background: var(--section); color: var(--text); border-radius: 18px; min-height: 44px; padding: 0 14px; font-size: 14px; font-weight: 500; cursor: pointer; box-shadow: var(--shadow); }
+  .chip { flex: none; border: 0; background: var(--section); color: var(--text); border-radius: 17px; min-height: 44px; padding: 0 12px; font-size: 13px; font-weight: 500; cursor: pointer; box-shadow: var(--shadow); }
   .chip[aria-pressed="true"] { background: var(--selected-bg); color: var(--selected-text); font-weight: 600; }
-  .search { margin: 6px 16px 10px; display: flex; align-items: center; gap: 8px; background: var(--wash); border-radius: 11px; padding: 0 10px; color: var(--hint); }
-  .search input { border: 0; outline: 0; background: transparent; padding: 10px 0; flex: 1; min-width: 0; color: var(--text); }
-  .more { display: block; width: calc(100% - 32px); margin: 12px 16px 0; border: 0; background: var(--section); color: var(--accent); border-radius: 14px; padding: 14px; cursor: pointer; font-weight: 500; box-shadow: var(--shadow); }
+  .search { margin: 6px 14px 8px; display: flex; align-items: center; gap: 8px; background: var(--wash); border-radius: 11px; padding: 0 10px; color: var(--hint); }
+  .search input { border: 0; outline: 0; background: transparent; padding: 9px 0; flex: 1; min-width: 0; color: var(--text); }
+  .more { display: block; width: calc(100% - 28px); margin: 10px 14px 0; border: 0; background: var(--section); color: var(--accent); border-radius: 13px; padding: 12px; cursor: pointer; font-weight: 500; box-shadow: var(--shadow); }
 
   /* Biểu đồ */
-  .chart { padding: 14px 16px 12px; }
+  .chart { padding: 12px 14px 10px; }
   .chart svg { max-width: 100%; height: auto; }
-  .chart h3 { margin: 0; font-size: 16px; font-weight: 600; }
-  .chart .cap { font-size: 13px; color: var(--hint); margin: 2px 0 8px; }
-  .legend { display: flex; gap: 14px; font-size: 13px; color: var(--sub); margin-bottom: 4px; }
+  .chart h3 { margin: 0; font-size: 15px; font-weight: 600; }
+  .chart .cap { font-size: 12.5px; color: var(--hint); margin: 2px 0 7px; }
+  .legend { display: flex; gap: 12px; font-size: 12.5px; color: var(--sub); margin-bottom: 4px; }
   .legend span { display: inline-flex; align-items: center; gap: 6px; }
   .key-line { width: 14px; height: 2px; border-radius: 1px; display: inline-block; }
   svg text { font-family: inherit; }
   .gridline { stroke: var(--grid); stroke-width: 1; } .axisline { stroke: var(--axis); stroke-width: 1; }
-  .ticklbl { fill: var(--hint); font-size: 11px; font-variant-numeric: tabular-nums; }
-  .endlbl { fill: var(--sub); font-size: 11.5px; font-weight: 600; }
-  .cols { display: grid; grid-template-columns: repeat(7, 1fr); align-items: end; height: 140px; gap: 4px; border-bottom: 1px solid var(--axis); }
+  .ticklbl { fill: var(--hint); font-size: 10.5px; font-variant-numeric: tabular-nums; }
+  .endlbl { fill: var(--sub); font-size: 11px; font-weight: 600; }
+  .cols { display: grid; grid-template-columns: repeat(7, 1fr); align-items: end; height: 132px; gap: 4px; border-bottom: 1px solid var(--axis); }
   .col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
   .col .v { font-size: 11.5px; color: var(--sub); font-variant-numeric: tabular-nums; margin-bottom: 3px; }
   .col .bar { width: min(24px, 70%); background: var(--series-1); border-radius: 4px 4px 0 0; }
-  .col-lbls { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; font-size: 11.5px; color: var(--hint); text-align: center; margin-top: 4px; }
-  .hbar-row { display: grid; grid-template-columns: minmax(80px, 36%) 1fr 28px; gap: 8px; align-items: center; padding: 5px 0; font-size: 14px; }
+  .col-lbls { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; font-size: 11px; color: var(--hint); text-align: center; margin-top: 4px; }
+  .hbar-row { display: grid; grid-template-columns: minmax(80px, 36%) 1fr 28px; gap: 8px; align-items: center; padding: 4px 0; font-size: 13.5px; }
   .hbar-row .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--sub); }
   .hbar { height: 14px; background: var(--series-1); border-radius: 0 4px 4px 0; min-width: 2px; }
   .hbar-row .n { text-align: right; font-variant-numeric: tabular-nums; }
-  details.data { margin-top: 8px; font-size: 13px; color: var(--sub); }
+  details.data { margin-top: 7px; font-size: 12.5px; color: var(--sub); }
   details.data summary { cursor: pointer; color: var(--accent); }
   details.data table { border-collapse: collapse; width: 100%; margin-top: 4px; }
   details.data td, details.data th { padding: 4px 6px; border-bottom: .5px solid var(--sep); text-align: left; font-weight: 500; }
   details.data .num { text-align: right; font-variant-numeric: tabular-nums; }
-  .seg { display: flex; justify-content: center; padding: 18px 17px 0; }
+  .seg { display: flex; justify-content: center; padding: 16px 16px 0; }
   .seg .tabs { width: 100%; }
-  .detail-sheet { width: min(430px, calc(100% - 24px)); max-height: 85dvh; margin: auto auto 0; padding: 14px 22px calc(24px + max(env(safe-area-inset-bottom, 0px), var(--tg-safe-area-inset-bottom, 0px), var(--tg-content-safe-area-inset-bottom, 0px))); border: 1px solid var(--sep); border-radius: 22px 22px 0 0; background: var(--section); color: var(--text); box-shadow: 0 -10px 40px rgba(0,0,0,.12); }
+  .detail-sheet { width: min(430px, calc(100% - 24px)); max-height: 85dvh; margin: auto auto 0; padding: 12px 18px calc(20px + max(env(safe-area-inset-bottom, 0px), var(--tg-safe-area-inset-bottom, 0px), var(--tg-content-safe-area-inset-bottom, 0px))); border: 1px solid var(--sep); border-radius: 20px 20px 0 0; background: var(--section); color: var(--text); box-shadow: 0 -10px 40px rgba(0,0,0,.12); }
   .detail-sheet::backdrop { background: rgba(0,0,0,.35); }
-  .sheet-handle { height: 5px; width: 38px; border-radius: 10px; background: var(--sep); margin: 0 auto 19px; }
-  .detail-sheet h2 { font-size: 19px; line-height: 1.4; margin: 0 0 12px; overflow-wrap: anywhere; }
-  .detail-sheet p { font-size: 14px; line-height: 1.5; color: var(--sub); white-space: pre-line; overflow-wrap: anywhere; }
-  .sheet-close { width: 100%; min-height: 44px; margin-top: 15px; padding: 13px; border: 0; border-radius: 13px; background: var(--button); color: var(--accent-text); font-weight: 600; cursor: pointer; }
-  @media (min-width: 600px) { .detail-sheet { margin: auto; border-radius: 22px; } }
+  .sheet-handle { height: 5px; width: 38px; border-radius: 10px; background: var(--sep); margin: 0 auto 16px; }
+  .detail-sheet h2 { font-size: 17px; line-height: 1.35; font-weight: 600; margin: 0 0 10px; overflow-wrap: anywhere; }
+  .detail-sheet p { font-size: 13.5px; line-height: 1.45; color: var(--sub); white-space: pre-line; overflow-wrap: anywhere; }
+  .sheet-close { width: 100%; min-height: 44px; margin-top: 12px; padding: 11px; border: 0; border-radius: 12px; background: var(--button); color: var(--accent-text); font-size: 14px; font-weight: 600; cursor: pointer; }
+  @media (min-width: 600px) { .detail-sheet { margin: auto; border-radius: 20px; } }
 
   .tip { position: fixed; z-index: 20; pointer-events: none; background: var(--section); color: var(--text); border-radius: 10px;
-    padding: 8px 10px; font-size: 12.5px; box-shadow: 0 4px 18px rgba(0,0,0,.18); min-width: 110px; }
+    padding: 7px 9px; font-size: 12px; box-shadow: 0 4px 18px rgba(0,0,0,.18); min-width: 110px; }
   .tip .h { color: var(--sub); margin-bottom: 3px; }
   .tip .r { display: flex; align-items: center; gap: 8px; }
   .tip .r b { font-variant-numeric: tabular-nums; min-width: 20px; }
   .tip .r span { color: var(--sub); }
-  .toast { position: fixed; left: 50%; bottom: calc(20px + max(env(safe-area-inset-bottom, 0px), var(--tg-safe-area-inset-bottom, 0px), var(--tg-content-safe-area-inset-bottom, 0px))); transform: translateX(-50%); background: #28282a; color: #fff;
-    max-width: calc(100% - 32px); overflow-wrap: anywhere; padding: 11px 18px; border-radius: 22px; font-size: 14.5px; font-weight: 500; z-index: 30; box-shadow: 0 6px 24px rgba(0,0,0,.25); }
+  .toast { position: fixed; left: 50%; bottom: calc(18px + max(env(safe-area-inset-bottom, 0px), var(--tg-safe-area-inset-bottom, 0px), var(--tg-content-safe-area-inset-bottom, 0px))); transform: translateX(-50%); background: #28282a; color: #fff;
+    max-width: calc(100% - 32px); overflow-wrap: anywhere; padding: 10px 16px; border-radius: 20px; font-size: 14px; font-weight: 500; z-index: 30; box-shadow: 0 6px 24px rgba(0,0,0,.25); }
   .tabs button[aria-pressed="true"] { background: var(--section); color: var(--text); font-weight: 600; }
   .icon-btn:disabled { opacity: 1; cursor: progress; }
   .icon-btn:disabled svg { animation: reload-spin 1s linear infinite; }
+  .pull-status { text-align: center; color: var(--sub); font-size: 12px; padding: 4px 16px; }
   @keyframes reload-spin { to { transform: rotate(360deg); } }
   @media (prefers-reduced-motion: reduce) { .icon-btn:disabled svg { animation: none; } }
-  .warn { margin: 12px 16px 0; padding: 12px 14px; border-radius: 14px; background: var(--section); font-size: 13.5px; color: var(--sub); }
+  .warn { margin: 10px 14px 0; padding: 10px 12px; border-radius: 13px; background: var(--section); font-size: 13px; color: var(--sub); }
 </style>
 </head>
 <body>
 <div class="app">
-  <header class="page-head">
-    <div><div class="eyebrow">Công việc &amp; lịch hẹn</div><h1 id="screenHeading">Tổng quan</h1></div>
-    <button class="icon-btn" id="btnRefresh" type="button" aria-label="Làm mới" title="Làm mới"></button>
-  </header>
   <div class="top">
+    <div class="top-row">
       <div class="tabs" role="tablist">
         <button type="button" role="tab" data-tab="week" aria-selected="true">Tuần này</button>
         <button type="button" role="tab" data-tab="stats" aria-selected="false">Thống kê</button>
         <button type="button" role="tab" data-tab="all" aria-selected="false">Tất cả</button>
       </div>
+      <button class="icon-btn" id="btnRefresh" type="button" aria-label="Làm mới" title="Làm mới"></button>
+    </div>
     <div class="own" id="own" role="group" aria-label="Lọc theo người làm"></div>
+    <div class="pull-status" id="pullStatus" role="status" hidden></div>
   </div>
   <main id="main"></main>
 </div>
@@ -315,6 +315,24 @@ function showDetails(title, text) {
   document.getElementById('detailTitle').textContent = title;
   document.getElementById('detailText').textContent = text;
   document.getElementById('detailSheet').showModal();
+}
+let detailRequest = 0;
+function showItemDetails(id, fallbackTitle) {
+  const request = ++detailRequest, dialog = document.getElementById('detailSheet');
+  showDetails(fallbackTitle, 'Đang tải chi tiết…');
+  server('details', id)
+    .then(d => {
+      if (request !== detailRequest || !dialog.open) return;
+      document.getElementById('detailTitle').textContent = d.title || fallbackTitle;
+      document.getElementById('detailText').textContent = [
+        d.type, d.status, d.assignee ? 'Giao cho: ' + d.assignee : '',
+        d.content && d.content !== d.title ? 'Nội dung:\n' + d.content : '',
+        d.source ? 'Nguồn:\n' + d.source : '',
+      ].filter(Boolean).join('\n\n') || 'Không có nội dung chi tiết.';
+    })
+    .catch(e => {
+      if (request === detailRequest && dialog.open) document.getElementById('detailText').textContent = 'Không tải được chi tiết: ' + errMsg(e);
+    });
 }
 document.getElementById('detailSheet').addEventListener('click', ev => {
   if (ev.target !== ev.currentTarget) return;
@@ -410,19 +428,21 @@ const canCall = () => FETCH_MODE || hasGAS();
 let LOADERR = '';
 function saveCache(d) { if (FETCH_MODE) try { localStorage.setItem('dash_cache_v1', JSON.stringify(d)); } catch (e) { /* bỏ qua */ } }
 function loadCache() { try { return JSON.parse(localStorage.getItem('dash_cache_v1') || 'null'); } catch (e) { return null; } }
-/** op 'data' = lấy số liệu; op 'done' = đánh dấu xong (ref). Trả về Promise<DATA mới>. */
-function server(op, ref) {
+/** op 'data' = lấy số liệu; 'done' = hoàn thành; 'details' = xem nội dung việc. */
+function server(op, ref, force) {
   if (FETCH_MODE) {
     const u = API + (API.indexOf('?') < 0 ? '?' : '&') + 'view=api&op=' + op + '&key=' + encodeURIComponent(KEY) +
-      (ref ? '&ref=' + encodeURIComponent(ref) : '') + '&_=' + Date.now();
+      (ref ? '&ref=' + encodeURIComponent(ref) : '') + (force ? '&fresh=1' : '') + '&_=' + Date.now();
     return fetch(u, { redirect: 'follow' }).then(r => r.json()).then(j => {
       if (!j || !j.ok) throw new Error((j && j.error) || 'Lỗi máy chủ');
-      saveCache(j.data); return j.data;
+      if (op !== 'details') saveCache(j.data); return j.data;
     });
   }
   return new Promise((res, rej) => {
     const r = google.script.run.withSuccessHandler(s => res(JSON.parse(s))).withFailureHandler(rej);
-    if (op === 'done') r.dashMarkDone(KEY, ref); else r.dashData(KEY);
+    if (op === 'done') r.dashMarkDone(KEY, ref);
+    else if (op === 'details') r.dashItemDetails(KEY, ref);
+    else r.dashData(KEY, force);
   });
 }
 const errMsg = e => (e && e.message) ? e.message : String(e);
@@ -432,10 +452,10 @@ function setBusy(b) {
   button.disabled = b;
   button.setAttribute('aria-label', b ? 'Đang cập nhật' : 'Làm mới');
 }
-function refresh(silent) {
+function refresh(silent, force) {
   if (!canCall()) return toast('Bản xem thử');
-  if (DATA) setBusy(true);
-  return server('data')
+  setBusy(true);
+  return server('data', null, force)
     .then(d => { DATA = d; LOADERR = ''; setBusy(false); render(); if (!silent) toast('Đã cập nhật'); })
     .catch(e => { setBusy(false); if (!DATA) { LOADERR = errMsg(e); render(); } else if (!silent) toast('Lỗi: ' + errMsg(e)); });
 }
@@ -479,14 +499,16 @@ function isOverdue(i) {
 }
 
 // ============================================================ dòng danh sách
-/** Một dòng: [ô biểu tượng] [tiêu đề + dòng phụ] [đuôi] [nút xong] */
+/** Một dòng: [ô biểu tượng] [tiêu đề + dòng phụ] [đuôi] [chi tiết / xong] */
 function item(opts) {
   const sub = opts.sub ? el('div', { class: 's', text: opts.sub }) : null;
   const subHost = sub || el('div', { class: 's' });
+  const details = opts.detailRef ? el('button', { type: 'button', class: 'detail-btn', 'aria-haspopup': 'dialog',
+    text: 'Xem', onclick: () => showItemDetails(opts.detailRef, opts.title) }) : null;
   return el('div', { class: 'item' },
     opts.person ? el('div', { class: 'lead person-lead' }, avatar(opts.person)) :
       (opts.tile ? el('div', { class: 'lead' }, tile(opts.tile[0], opts.tile[1])) : null),
-    el('div', { class: 'body' }, el('div', { class: 't', text: opts.title }), sub || (opts.ref ? subHost : null)),
+    el('div', { class: 'body' }, el('div', { class: 't', text: opts.title }), sub || (opts.ref ? subHost : null), details),
     opts.tail ? el('div', { class: 'tail' }, opts.tail) : null,
     opts.ref ? el('div', { class: 'act' }, check(opts.ref, subHost)) : null);
 }
@@ -517,8 +539,9 @@ function weekRow(r, over, dayLabel) {
     live ? el('span', { class: 'live', text: 'Đang diễn ra' }) :
       (!over && note && !/^trong ngày$/i.test(note) ? el('span', { text: note }) : null));
   const details = el('button', { type: 'button', class: 'detail-btn', 'aria-haspopup': 'dialog',
-    text: isEv ? 'Xem lịch hẹn' : 'Xem chi tiết', onclick: () =>
-      showDetails(w.title, [dayLabel, status, timing, note, w.who ? 'Người nhận: ' + w.who : '', source ? 'Nguồn: ' + source.src : ''].filter(Boolean).join('\n')) });
+    text: isEv ? 'Xem lịch hẹn' : 'Xem', onclick: () =>
+      source ? showItemDetails(source.id, w.title)
+        : showDetails(w.title, [dayLabel, status, timing, note, w.who ? 'Người nhận: ' + w.who : ''].filter(Boolean).join('\n')) });
   const row = el('div', { class: 'item row ' + (over ? 'over ' : '') + (isEv ? 'event' : 'task') },
     el('i', { class: 'bar' }),
     el('div', { class: 'main' }, el('div', { class: 'ttl', text: w.title }), meta, details),
@@ -540,7 +563,7 @@ function renderDelegated(main) {
     const list = by[n].sort((a, b) => (a.d || 9e15) - (b.d || 9e15)), nl = list.filter(isOverdue).length;
     main.append(el('div', { class: 'sec-h' + (nl ? ' crit' : '') }, avatar(n), el('span', { class: 'nm', text: n }),
       el('span', { class: 'cnt', text: '· ' + list.length + (nl ? ' · ' + nl + ' trễ' : '') })));
-    main.append(el('div', { class: 'sec' }, list.map(i => item({ ref: i.id, title: i.t, sub: [i.dl || 'Chưa có hạn', i.src].filter(Boolean).join(' · '), tail: badge(i) }))));
+    main.append(el('div', { class: 'sec' }, list.map(i => item({ ref: i.id, detailRef: i.id, title: i.t, sub: [i.dl || 'Chưa có hạn', i.src].filter(Boolean).join(' · '), tail: badge(i) }))));
   });
   main.append(el('div', { class: 'sec-f', text: 'Chạm ✓ khi nhân viên báo xong. Nhắc đôn đốc việc trễ do bot gửi lúc 9h sáng.' }));
 }
@@ -588,12 +611,12 @@ function renderWeek(main) {
   const noDue = open.filter(i => !i.d).sort((a, b) => (b.c || 0) - (a.c || 0));
   if (noDue.length) {
     main.append(secH('Chưa có hạn', noDue.length, null, 'small'),
-      el('div', { class: 'sec' }, noDue.slice(0, 10).map(i => item({ ref: i.id, title: i.t, sub: who(i) + i.src + (i.c ? ' · nhận ' + fmtDT(i.c) : '') }))),
+      el('div', { class: 'sec' }, noDue.slice(0, 10).map(i => item({ ref: i.id, detailRef: i.id, title: i.t, sub: who(i) + i.src + (i.c ? ' · nhận ' + fmtDT(i.c) : '') }))),
       el('div', { class: 'sec-f', text: (noDue.length > 10 ? '… và ' + (noDue.length - 10) + ' việc khác (xem tab Tất cả). ' : '') + 'Đặt hạn: reply thẻ việc trong chat, ví dụ "16h thứ 5".' }));
   }
   if (drafts.length) {
     main.append(secH('Nháp chờ chốt', drafts.length, null, 'small'),
-      el('div', { class: 'sec' }, drafts.slice(-10).reverse().map(i => item({ tile: ['clock', 'draft'], title: i.t, sub: who(i) + (i.dl || 'Chưa có hạn') + ' · ' + i.src }))),
+      el('div', { class: 'sec' }, drafts.slice(-10).reverse().map(i => item({ tile: ['clock', 'draft'], detailRef: i.id, title: i.t, sub: who(i) + (i.dl || 'Chưa có hạn') + ' · ' + i.src }))),
       el('div', { class: 'sec-f', text: 'Nháp chưa được nhắc. Bấm ✅ Chốt trên thẻ nháp hoặc gõ /nhap.' }));
   }
   const notes = DATA.notes || [];
@@ -805,7 +828,7 @@ function renderAll(main) {
     const shown = list.slice(0, UI.limit);
     listHost.replaceChildren(...[secH(list.length + ' việc'),
       list.length ? el('div', { class: 'sec' }, shown.map(i => item({
-        ref: isActiveOpen(i) ? i.id : null, tile: i.st === 'DONE' ? ['done', 'done'] : i.ty === 'EVENT' ? ['cal', 'event'] : ['task', 'task'],
+        ref: isActiveOpen(i) ? i.id : null, detailRef: i.id, tile: i.st === 'DONE' ? ['done', 'done'] : i.ty === 'EVENT' ? ['cal', 'event'] : ['task', 'task'],
         title: i.t, sub: who(i) + [i.dl || 'Chưa có hạn', i.src].join(' · '), tail: badge(i) })))
         : el('div', { class: 'sec' }, el('div', { class: 'empty', text: 'Không có việc phù hợp.' })),
       list.length > shown.length ? el('button', { class: 'more', type: 'button', text: 'Xem thêm ' + (list.length - shown.length) + ' việc', onclick: () => { UI.limit += 40; drawList(); } }) : null].filter(Boolean));
@@ -829,7 +852,6 @@ function drawOwn() {
 }
 function render() {
   const main = document.getElementById('main');
-  document.getElementById('screenHeading').textContent = { week: 'Tổng quan', stats: 'Hiệu suất', all: 'Tất cả mục' }[UI.tab];
   document.querySelectorAll('.top .tabs button').forEach(b => {
     b.setAttribute('aria-selected', String(b.dataset.tab === UI.tab));
     b.tabIndex = b.dataset.tab === UI.tab ? 0 : -1;
@@ -866,13 +888,41 @@ document.querySelector('[role="tablist"]').addEventListener('keydown', ev => {
   tabs[next].focus(); tabs[next].click();
 });
 document.getElementById('btnRefresh').appendChild(svgi('refresh'));
-document.getElementById('btnRefresh').addEventListener('click', () => refresh(false));
+document.getElementById('btnRefresh').addEventListener('click', () => refresh(false, true));
+function setupPullRefresh() {
+  const status = document.getElementById('pullStatus');
+  let start = null, pulling = false, distance = 0;
+  const reset = () => { start = null; pulling = false; distance = 0; status.hidden = true; status.textContent = ''; };
+  document.addEventListener('touchstart', ev => {
+    reset();
+    if (ev.touches.length !== 1 || window.scrollY > 0 || document.getElementById('btnRefresh').disabled ||
+        document.querySelector('dialog[open]') || ev.target.closest('button, input, a, .chips, .chart')) return;
+    start = { x: ev.touches[0].clientX, y: ev.touches[0].clientY };
+  }, { passive: true });
+  document.addEventListener('touchmove', ev => {
+    if (!start || ev.touches.length !== 1 || window.scrollY > 0) return reset();
+    const dx = ev.touches[0].clientX - start.x, dy = ev.touches[0].clientY - start.y;
+    if (!pulling && (dy < 0 || Math.abs(dx) > Math.abs(dy))) return reset();
+    if (dy < 12 && !pulling) return;
+    pulling = true; distance = Math.max(0, dy);
+    if (ev.cancelable) ev.preventDefault();
+    status.hidden = false;
+    status.textContent = distance >= 80 ? 'Thả để làm mới' : 'Kéo xuống để làm mới';
+  }, { passive: false });
+  document.addEventListener('touchend', () => {
+    const ready = pulling && distance >= 80;
+    reset();
+    if (ready && !document.getElementById('btnRefresh').disabled && !document.querySelector('dialog[open]')) refresh(false, true);
+  }, { passive: true });
+  document.addEventListener('touchcancel', reset, { passive: true });
+}
+setupPullRefresh();
 let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (UI.tab === 'stats') render(); }, 150); });
 setInterval(() => { if (document.visibilityState === 'visible') refresh(true); }, 5 * 60000);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && FETCH_MODE) refresh(true); });
 ensureContrast();
 render();
-if (FETCH_MODE) refresh(true);
+if (FETCH_MODE || !DATA) refresh(true);   // trang Apps Script: chưa có số liệu nhúng → tải ngay sau khi hiện khung
   const initTelegram = () => { try {
     const w = window.Telegram && window.Telegram.WebApp;
     if (!w) return;
@@ -885,6 +935,7 @@ if (FETCH_MODE) refresh(true);
     };
     syncInsets();
     w.onEvent('safeAreaChanged', syncInsets); w.onEvent('contentSafeAreaChanged', syncInsets);
+    if (typeof w.disableVerticalSwipes === 'function' && typeof w.isVersionAtLeast === 'function' && w.isVersionAtLeast('7.7')) w.disableVerticalSwipes();
     w.ready(); w.expand(); w.onEvent('themeChanged', () => applyThemeParams(w.themeParams));
   } catch (e) { console.error('Telegram initialization failed', e); } };
   if (window.Telegram && window.Telegram.WebApp) initTelegram();
