@@ -113,15 +113,15 @@
   .tile.person { background: var(--person); } .tile.draft { background: var(--hint); } .tile.note { background: #5e5ce6; } .tile.crit { background: var(--critical); }
 
   /* Dòng lịch/việc trong "Tuần này": giờ bên trái · vạch màu · nội dung · nút xong */
-  .row { padding: 12px 6px 12px 12px; gap: 10px; align-items: stretch; min-height: 76px; }
-  .row .bar { width: 3px; border-radius: 3px; flex: none; background: var(--event); }
+  .row { padding: 12px 6px 12px 12px; gap: 4px; align-items: stretch; min-height: 76px; }
+  .row .bar { width: 3px; margin-right: 6px; border-radius: 3px; flex: none; background: var(--event); }
   .row.task .bar { background: var(--task); }
   .row.over .bar { background: var(--critical); }
-  .row .main { flex: 1; min-width: 0; display: block; }
+  .row .main { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
   .row .ttl { font-size: 14px; line-height: 1.4; font-weight: 500; letter-spacing: -.01em; overflow-wrap: anywhere; }
   .detail-btn { align-self: flex-start; min-height: 44px; border: 0; background: transparent; padding: 6px 0 0; text-align: left; font-size: 12px; font-weight: 600; color: var(--accent); cursor: pointer; }
-  .row .detail-btn { float: right; min-height: 32px; margin: -2px 0 4px 8px; padding: 0 0 0 8px; }
-  .row .meta { clear: right; display: flex; flex-wrap: wrap; gap: 4px 7px; align-items: center; margin-top: 6px; font-size: 12px; line-height: 1.35; color: var(--sub); }
+  .row .meta { display: flex; flex-wrap: wrap; gap: 4px 7px; align-items: center; margin-top: 6px; font-size: 12px; line-height: 1.35; color: var(--sub); }
+  .row .meta .detail-btn { min-height: 44px; padding: 0; align-self: center; }
   .row .meta .meeting { color: var(--accent); font-weight: 600; }
   .row .meta > span + span:not(.confirm-hint)::before { content: "·"; margin-right: 8px; color: var(--hint); }
   .row .meta .late { color: var(--critical); }
@@ -532,20 +532,21 @@ function weekRow(r, over, dayLabel) {
   const timing = over ? (source && source.d ? 'Hạn ' + (source.ht ? fmtDT(source.d) : fmtDay(dayIdx(source.d))) : note)
     : (isEv ? '' : 'Hạn ') + (r.time || 'Cả ngày');
   const live = /đang diễn ra/i.test(note);
+  const details = el('button', { type: 'button', class: 'detail-btn', 'aria-haspopup': 'dialog',
+    text: isEv ? 'Xem lịch hẹn' : 'Xem', onclick: () =>
+      source ? showItemDetails(source.id, w.title)
+        : showDetails(w.title, [dayLabel, status, timing, note, w.who ? 'Người nhận: ' + w.who : ''].filter(Boolean).join('\n')) });
   const meta = el('div', { class: 'meta' },
+    details,
     status ? el('span', { class: 'late', text: status }) : null,
     el('span', { class: isEv ? 'meeting' : '', text: timing }),
     isEv && dayLabel ? el('span', { text: dayLabel }) : null,
     w.who ? el('span', { class: 'who' }, avatar(w.who), w.who) : null,
     live ? el('span', { class: 'live', text: 'Đang diễn ra' }) :
       (!over && note && !/^trong ngày$/i.test(note) ? el('span', { text: note }) : null));
-  const details = el('button', { type: 'button', class: 'detail-btn', 'aria-haspopup': 'dialog',
-    text: isEv ? 'Xem lịch hẹn' : 'Xem', onclick: () =>
-      source ? showItemDetails(source.id, w.title)
-        : showDetails(w.title, [dayLabel, status, timing, note, w.who ? 'Người nhận: ' + w.who : ''].filter(Boolean).join('\n')) });
   const row = el('div', { class: 'item row ' + (over ? 'over ' : '') + (isEv ? 'event' : 'task') },
     el('i', { class: 'bar' }),
-    el('div', { class: 'main' }, details, el('div', { class: 'ttl', text: w.title }), meta),
+    el('div', { class: 'main' }, el('div', { class: 'ttl', text: w.title }), meta),
     r.ref ? el('div', { class: 'act' }, check(r.ref, meta)) : null);
   return row;
 }
