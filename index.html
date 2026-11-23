@@ -120,6 +120,11 @@
   .row .main { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
   .row .ttl { font-size: 14px; line-height: 1.4; font-weight: 500; letter-spacing: -.01em; overflow-wrap: anywhere; }
   .detail-btn { align-self: flex-start; min-height: 44px; border: 0; background: transparent; padding: 6px 0 0; text-align: left; font-size: 12px; font-weight: 600; color: var(--accent); cursor: pointer; }
+  .item .detail-line { display: flex; align-items: center; flex-wrap: wrap; gap: 0 12px; }
+  .item .detail-line .detail-btn { padding: 0; }
+  .item .detail-line .badge { font-size: 12px; }
+  .item .s + .detail-line, .item .s + .detail-btn { margin-top: -8px; }
+  .item .s + .detail-btn { display: block; padding: 0; }
   .row .row-actions { display: flex; align-items: flex-start; gap: 4px; margin-top: 6px; }
   .row .meta { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; gap: 4px 7px; align-items: center; font-size: 12px; line-height: 1.35; color: var(--sub); }
   .row .meta > span { min-width: 0; overflow-wrap: anywhere; }
@@ -503,6 +508,7 @@ function isPastEvent(i) {
   return (i.e || (i.ht ? i.d + 3600000 : (dayIdx(i.d) + 1) * DAY - off())) < DATA.now;
 }
 const isActiveOpen = i => i.st === 'OPEN' && !isPastEvent(i);
+const isOpen = i => i.st === 'OPEN';
 const who = i => i.a ? 'Giao ' + i.a + ' · ' : '';
 const ownItem = i => UI.own === 'all' || (UI.own === 'deleg') === !!i.a;            // việc (trong Sheet) có hợp bộ lọc không
 const ownRow = r => UI.own === 'all' || (UI.own === 'deleg') === !!parseWho(r.title).who;  // dòng tuần (lịch/Google Tasks không có người → của tôi)
@@ -519,11 +525,13 @@ function item(opts) {
   const subHost = sub || el('div', { class: 's' });
   const details = opts.detailRef ? el('button', { type: 'button', class: 'detail-btn', 'aria-haspopup': 'dialog',
     text: 'Xem', onclick: () => showItemDetails(opts.detailRef, opts.title) }) : null;
+  const inlineTail = opts.inlineTail && details && opts.tail;
   return el('div', { class: 'item' },
     opts.person ? el('div', { class: 'lead person-lead' }, avatar(opts.person)) :
       (opts.tile ? el('div', { class: 'lead' }, tile(opts.tile[0], opts.tile[1])) : null),
-    el('div', { class: 'body' }, el('div', { class: 't', text: opts.title }), sub || (opts.ref ? subHost : null), details),
-    opts.tail ? el('div', { class: 'tail' }, opts.tail) : null,
+    el('div', { class: 'body' }, el('div', { class: 't', text: opts.title }), sub || (opts.ref ? subHost : null),
+      inlineTail ? el('div', { class: 'detail-line' }, details, opts.tail) : details),
+    opts.tail && !inlineTail ? el('div', { class: 'tail' }, opts.tail) : null,
     opts.ref ? el('div', { class: 'act' }, check(opts.ref, subHost)) : null);
 }
 /** Tiêu đề nhóm. cls 'small' = chữ nhỏ viết hoa (nhóm phụ); 'crit' = đỏ. */
@@ -566,7 +574,7 @@ function weekRow(r, over, dayLabel) {
 
 /** Chế độ "Đã giao": gom theo người, người có việc trễ lên đầu, mỗi việc bấm ✓ để ghi nhận đã xong. */
 function renderDelegated(main) {
-  const open = DATA.items.filter(i => i.a && isActiveOpen(i));
+  const open = DATA.items.filter(i => i.a && isOpen(i));
   const by = {};
   open.forEach(i => i.a.split(', ').forEach(n => (by[n] = by[n] || []).push(i)));
   const names = Object.keys(by).sort((a, b) => by[b].filter(isOverdue).length - by[a].filter(isOverdue).length || by[b].length - by[a].length);
@@ -578,7 +586,7 @@ function renderDelegated(main) {
     const list = by[n].sort((a, b) => (a.d || 9e15) - (b.d || 9e15)), nl = list.filter(isOverdue).length;
     main.append(el('div', { class: 'sec-h' + (nl ? ' crit' : '') }, avatar(n), el('span', { class: 'nm', text: n }),
       el('span', { class: 'cnt', text: '· ' + list.length + (nl ? ' · ' + nl + ' trễ' : '') })));
-    main.append(el('div', { class: 'sec' }, list.map(i => item({ ref: i.id, detailRef: i.id, title: i.t, sub: [i.dl || 'Chưa có hạn', i.src].filter(Boolean).join(' · '), tail: badge(i) }))));
+    main.append(el('div', { class: 'sec' }, list.map(i => item({ ref: i.id, detailRef: i.id, tile: i.ty === 'EVENT' ? ['cal', 'event'] : ['task', 'task'], title: i.t, sub: [i.dl || 'Chưa có hạn', i.src].filter(Boolean).join(' · '), tail: badge(i), inlineTail: isPastEvent(i) }))));
   });
   main.append(el('div', { class: 'sec-f', text: 'Chạm ✓ khi nhân viên báo xong. Nhắc đôn đốc việc trễ do bot gửi lúc 9h sáng.' }));
 }
@@ -811,9 +819,9 @@ const FILTERS = [['ACTIVE', 'Đang làm'], ['OVERDUE', 'Quá hạn'], ['DRAFT', 
 function matchFilter(i) {
   if (!ownItem(i)) return false;
   switch (UI.filter) {
-    case 'ACTIVE': return isActiveOpen(i) || i.st === 'DRAFT';
+    case 'ACTIVE': return isOpen(i);
     case 'OVERDUE': return isOverdue(i);
-    case 'DELEG': return !!i.a && (isActiveOpen(i) || i.st === 'DRAFT');
+    case 'DELEG': return !!i.a && isOpen(i);
     case 'PAST': return isPastEvent(i);
     case '': return true;
     default: return i.st === UI.filter;
@@ -843,8 +851,8 @@ function renderAll(main) {
     const shown = list.slice(0, UI.limit);
     listHost.replaceChildren(...[secH(list.length + ' việc'),
       list.length ? el('div', { class: 'sec' }, shown.map(i => item({
-        ref: isActiveOpen(i) ? i.id : null, detailRef: i.id, tile: i.st === 'DONE' ? ['done', 'done'] : i.ty === 'EVENT' ? ['cal', 'event'] : ['task', 'task'],
-        title: i.t, sub: who(i) + [i.dl || 'Chưa có hạn', i.src].join(' · '), tail: badge(i) })))
+        ref: isOpen(i) ? i.id : null, detailRef: i.id, tile: i.st === 'DONE' ? ['done', 'done'] : i.ty === 'EVENT' ? ['cal', 'event'] : ['task', 'task'],
+        title: i.t, sub: who(i) + [i.dl || 'Chưa có hạn', i.src].join(' · '), tail: badge(i), inlineTail: isPastEvent(i) })))
         : el('div', { class: 'sec' }, el('div', { class: 'empty', text: 'Không có việc phù hợp.' })),
       list.length > shown.length ? el('button', { class: 'more', type: 'button', text: 'Xem thêm ' + (list.length - shown.length) + ' việc', onclick: () => { UI.limit += 40; drawList(); } }) : null].filter(Boolean));
   }
@@ -852,13 +860,14 @@ function renderAll(main) {
 }
 
 // ============================================================ khung chung
-/** Dải chọn Của tôi | Đã giao | Tất cả. Chỉ "Đã giao" có số + chấm đỏ khi có việc trễ. Ẩn ở tab Thống kê. */
+/** Dải chọn Của tôi | Đã giao | Tất cả, đếm việc OPEN như /list. Ẩn ở tab Thống kê. */
 function drawOwn() {
   const host = document.getElementById('own');
   host.hidden = UI.tab === 'stats';
   if (host.hidden || !DATA) return;
-  const dg = DATA.items.filter(i => i.a && isActiveOpen(i)), late = dg.filter(isOverdue).length;
-  host.replaceChildren(...[['mine', 'Của tôi'], ['deleg', 'Đã giao' + (dg.length ? ' · ' + dg.length : '')], ['all', 'Tất cả']].map(o => {
+  const open = DATA.items.filter(isOpen), dg = open.filter(i => i.a), late = dg.filter(isOverdue).length;
+  const mine = open.length - dg.length;
+  host.replaceChildren(...[['mine', 'Của tôi · ' + mine], ['deleg', 'Đã giao · ' + dg.length], ['all', 'Tất cả']].map(o => {
     const b = el('button', { type: 'button', 'aria-pressed': String(UI.own === o[0]), text: o[1] });
     if (o[0] === 'deleg' && late) b.append(el('span', { class: 'dot', 'aria-label': late + ' việc trễ' }));
     b.addEventListener('click', () => { UI.own = o[0]; saveOwn(o[0]); UI.limit = 40; render(); document.querySelector('.own [aria-pressed="true"]').focus(); scrollTo(0, 0); });
