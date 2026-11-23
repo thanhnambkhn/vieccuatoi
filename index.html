@@ -119,16 +119,19 @@
   .row.over .bar { background: var(--critical); }
   .row .main { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
   .row .ttl { font-size: 14px; line-height: 1.4; font-weight: 500; letter-spacing: -.01em; overflow-wrap: anywhere; }
-  .detail-btn { align-self: flex-start; min-height: 44px; border: 0; background: transparent; padding: 6px 0 0; text-align: left; font-size: 12px; font-weight: 600; color: var(--accent); cursor: pointer; }
+  /* Tiêu đề = vùng chạm mở chi tiết. Kiểu iOS: chữ màu thường (không xanh, không gạch chân), nền sáng lên khi chạm. */
+  .title-link { display: block; width: 100%; min-height: 44px; padding: 0; border: 0; border-radius: 6px; background: transparent; color: var(--text);
+    font: inherit; text-align: left; overflow-wrap: anywhere; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .title-link:active { background: var(--wash); }
+  .title-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .item .detail-line { display: flex; align-items: center; flex-wrap: wrap; gap: 0 12px; }
-  .item .detail-line .detail-btn { padding: 0; }
+  .item .detail-line .act { margin-left: auto; }
+  .item .detail-line .tile { width: 20px; height: 20px; border-radius: 6px; font-size: 14px; flex: none; }
   .item .detail-line .badge { font-size: 12px; }
-  .item .s + .detail-line, .item .s + .detail-btn { margin-top: -8px; }
-  .item .s + .detail-btn { display: block; padding: 0; }
+  .item .s + .detail-line { margin-top: -8px; }
   .row .row-actions { display: flex; align-items: flex-start; gap: 4px; margin-top: 6px; }
   .row .meta { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; gap: 4px 7px; align-items: center; font-size: 12px; line-height: 1.35; color: var(--sub); }
   .row .meta > span { min-width: 0; overflow-wrap: anywhere; }
-  .row .meta .detail-btn { min-height: 44px; padding: 0; align-self: center; }
   .row .meta .meeting { color: var(--accent); font-weight: 600; }
   .row .meta > span + span:not(.confirm-hint)::before { content: "·"; margin-right: 8px; color: var(--hint); }
   .row .meta .late { color: var(--critical); }
@@ -169,10 +172,11 @@
   .av { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: var(--person); color: #fff; font-size: 10.5px; font-weight: 700; line-height: 1; }
   .item .person-lead { width: 36px; }
   .person-lead .av { width: 36px; height: 36px; border-radius: 12px; font-size: 13px; background: color-mix(in srgb, var(--person) 10%, var(--section)); color: var(--person); }
-  .chips { display: flex; gap: 6px; overflow-x: auto; padding: 4px 14px 2px; scrollbar-width: none; }
-  .chips::-webkit-scrollbar { display: none; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 4px 14px 2px; }
   .chip { flex: none; border: 0; background: var(--section); color: var(--text); border-radius: 17px; min-height: 44px; padding: 0 12px; font-size: 13px; font-weight: 500; cursor: pointer; box-shadow: var(--shadow); }
   .chip[aria-pressed="true"] { background: var(--selected-bg); color: var(--selected-text); font-weight: 600; }
+  select.chip { max-width: 100%; }
+  select.chip.filter-selected { background: var(--selected-bg); color: var(--selected-text); font-weight: 600; }
   .search { margin: 6px 14px 8px; display: flex; align-items: center; gap: 8px; background: var(--wash); border-radius: 11px; padding: 0 10px; color: var(--hint); }
   .search input { border: 0; outline: 0; background: transparent; padding: 9px 0; flex: 1; min-width: 0; color: var(--text); }
   .more { display: block; width: calc(100% - 28px); margin: 10px 14px 0; border: 0; background: var(--section); color: var(--accent); border-radius: 13px; padding: 12px; cursor: pointer; font-weight: 500; box-shadow: var(--shadow); }
@@ -519,20 +523,30 @@ function isOverdue(i) {
 }
 
 // ============================================================ dòng danh sách
-/** Một dòng: [ô biểu tượng] [tiêu đề + dòng phụ] [đuôi] [chi tiết / xong] */
+/**
+ * Một dòng việc. opts: { title, sub, tile:[icon, màu], tail, person, ref (id → có nút ✓ xong), detailRef (id → chạm tiêu đề mở chi tiết) }
+ *  • Có detailRef: tiêu đề rộng hết hàng (là nút mở chi tiết); biểu tượng · đuôi · ✓ nằm ở hàng dưới (detail-line).
+ *  • Không có:     [biểu tượng] [tiêu đề + dòng phụ] [đuôi] [✓] trên cùng một hàng.
+ */
 function item(opts) {
   const sub = opts.sub ? el('div', { class: 's', text: opts.sub }) : null;
-  const subHost = sub || el('div', { class: 's' });
-  const details = opts.detailRef ? el('button', { type: 'button', class: 'detail-btn', 'aria-haspopup': 'dialog',
-    text: 'Xem', onclick: () => showItemDetails(opts.detailRef, opts.title) }) : null;
-  const inlineTail = opts.inlineTail && details && opts.tail;
+  const subHost = sub || el('div', { class: 's' });          // chỗ hiện "Đã xong ✓" sau khi bấm (check() ghi vào đây)
+  const hasDetails = !!opts.detailRef;
+  const tileEl = opts.tile ? tile(opts.tile[0], opts.tile[1]) : null;
+  const title = hasDetails
+    ? el('button', { type: 'button', class: 't title-link', 'aria-haspopup': 'dialog', text: opts.title,
+      onclick: () => showItemDetails(opts.detailRef, opts.title) })
+    : el('div', { class: 't', text: opts.title });
+  const action = opts.ref ? el('div', { class: 'act' }, check(opts.ref, subHost)) : null;
+  const lead = opts.person ? el('div', { class: 'lead person-lead' }, avatar(opts.person))
+    : (!hasDetails && tileEl ? el('div', { class: 'lead' }, tileEl) : null);
+  const detailLine = hasDetails && (tileEl || opts.tail || action)
+    ? el('div', { class: 'detail-line' }, opts.person ? null : tileEl, opts.tail || null, action) : null;
   return el('div', { class: 'item' },
-    opts.person ? el('div', { class: 'lead person-lead' }, avatar(opts.person)) :
-      (opts.tile ? el('div', { class: 'lead' }, tile(opts.tile[0], opts.tile[1])) : null),
-    el('div', { class: 'body' }, el('div', { class: 't', text: opts.title }), sub || (opts.ref ? subHost : null),
-      inlineTail ? el('div', { class: 'detail-line' }, details, opts.tail) : details),
-    opts.tail && !inlineTail ? el('div', { class: 'tail' }, opts.tail) : null,
-    opts.ref ? el('div', { class: 'act' }, check(opts.ref, subHost)) : null);
+    lead,
+    el('div', { class: 'body' }, title, sub || (opts.ref ? subHost : null), detailLine),
+    !hasDetails && opts.tail ? el('div', { class: 'tail' }, opts.tail) : null,
+    !hasDetails ? action : null);
 }
 /** Tiêu đề nhóm. cls 'small' = chữ nhỏ viết hoa (nhóm phụ); 'crit' = đỏ. */
 const secH = (label, cnt, icon, cls) => el('div', { class: 'sec-h ' + (cls || '') }, icon || null, el('span', { class: 'nm', text: label }),
@@ -553,12 +567,11 @@ function weekRow(r, over, dayLabel) {
   const timing = over ? (source && source.d ? 'Hạn ' + (source.ht ? fmtDT(source.d) : fmtDay(dayIdx(source.d))) : note)
     : (isEv ? '' : 'Hạn ') + (r.time || 'Cả ngày');
   const live = /đang diễn ra/i.test(note);
-  const details = el('button', { type: 'button', class: 'detail-btn', 'aria-haspopup': 'dialog',
-    text: isEv ? 'Xem lịch hẹn' : 'Xem', onclick: () =>
+  const title = el('button', { type: 'button', class: 'ttl title-link', 'aria-haspopup': 'dialog',
+    text: w.title, onclick: () =>
       source ? showItemDetails(source.id, w.title)
         : showDetails(w.title, [dayLabel, status, timing, note, w.who ? 'Người nhận: ' + w.who : ''].filter(Boolean).join('\n')) });
   const meta = el('div', { class: 'meta' },
-    details,
     status ? el('span', { class: 'late', text: status }) : null,
     el('span', { class: isEv ? 'meeting' : '', text: timing }),
     isEv && dayLabel ? el('span', { text: dayLabel }) : null,
@@ -567,7 +580,7 @@ function weekRow(r, over, dayLabel) {
       (!over && note && !/^trong ngày$/i.test(note) ? el('span', { text: note }) : null));
   const row = el('div', { class: 'item row ' + (over ? 'over ' : '') + (isEv ? 'event' : 'task') },
     el('i', { class: 'bar' }),
-    el('div', { class: 'main' }, el('div', { class: 'ttl', text: w.title }),
+    el('div', { class: 'main' }, title,
       el('div', { class: 'row-actions' }, meta, r.ref ? el('div', { class: 'act' }, check(r.ref, meta)) : null)));
   return row;
 }
@@ -586,11 +599,17 @@ function renderDelegated(main) {
     const list = by[n].sort((a, b) => (a.d || 9e15) - (b.d || 9e15)), nl = list.filter(isOverdue).length;
     main.append(el('div', { class: 'sec-h' + (nl ? ' crit' : '') }, avatar(n), el('span', { class: 'nm', text: n }),
       el('span', { class: 'cnt', text: '· ' + list.length + (nl ? ' · ' + nl + ' trễ' : '') })));
-    main.append(el('div', { class: 'sec' }, list.map(i => item({ ref: i.id, detailRef: i.id, tile: i.ty === 'EVENT' ? ['cal', 'event'] : ['task', 'task'], title: i.t, sub: [i.dl || 'Chưa có hạn', i.src].filter(Boolean).join(' · '), tail: badge(i), inlineTail: isPastEvent(i) }))));
+    main.append(el('div', { class: 'sec' }, list.map(i => item({
+      ref: i.id, detailRef: i.id, tile: typeTile(i), title: i.t, tail: badge(i),
+      sub: [i.dl || 'Chưa có hạn', i.src].filter(Boolean).join(' · ') }))));
   });
   main.append(el('div', { class: 'sec-f', text: 'Chạm ✓ khi nhân viên báo xong. Nhắc đôn đốc việc trễ do bot gửi lúc 9h sáng.' }));
 }
 
+/**
+ * Tab "Tuần này": quá hạn → từng ngày trong tuần (lịch + việc có hạn) → việc chưa có hạn/nháp.
+ * Chế độ "Đã giao" dùng bố cục gom theo người (renderDelegated).
+ */
 function renderWeek(main) {
   if (UI.own === 'deleg') return renderDelegated(main);
   const W = DATA.week, items = DATA.items, today = dayIdx(DATA.now);
@@ -816,6 +835,9 @@ function hbars(pairs) {
 
 // ============================================================ TAB 3: Tất cả
 const FILTERS = [['ACTIVE', 'Đang làm'], ['OVERDUE', 'Quá hạn'], ['DRAFT', 'Nháp'], ['DONE', 'Đã xong'], ['PAST', 'Lịch đã qua'], ['CANCELLED', 'Đã hủy'], ['', 'Tất cả']];
+/** Ô biểu tượng theo loại việc: Lịch → lịch xanh, còn lại → Task. */
+const typeTile = i => i.ty === 'EVENT' ? ['cal', 'event'] : ['task', 'task'];
+
 function matchFilter(i) {
   if (!ownItem(i)) return false;
   switch (UI.filter) {
@@ -835,26 +857,42 @@ function badge(i) {
   if (i.st === 'CANCELLED') return el('span', { class: 'badge', text: 'Đã hủy' });
   return null;
 }
+/** Bỏ dấu + chữ thường để tìm kiếm ("Đức" → "duc"). */
+const fold = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/gi, 'd').toLowerCase();
+
+/**
+ * Tab "Tất cả": ô tìm + 2 bộ lọc nhanh (Đang làm, Quá hạn) + menu bộ lọc còn lại, rồi danh sách việc.
+ * Lọc/sắp xếp 1 lần (base); gõ tìm chỉ vẽ lại phần danh sách (drawList) để không mất con trỏ trong ô tìm.
+ */
 function renderAll(main) {
   const search = el('input', { type: 'search', placeholder: 'Tìm việc, người giao, nhân viên', value: UI.q, 'aria-label': 'Tìm việc' });
   const listHost = el('div');
+  const quickFilter = UI.filter === 'ACTIVE' || UI.filter === 'OVERDUE';
+  const chooseFilter = (value, focus) => {
+    UI.filter = value; UI.limit = 40; render(); document.querySelector(focus).focus();
+  };
+  const filterSelect = el('select', { class: 'chip' + (quickFilter ? '' : ' filter-selected'), 'aria-label': 'Bộ lọc trạng thái',
+    onchange: ev => chooseFilter(ev.target.value, '.chips select') },
+    el('option', { value: '__filter__', disabled: '', selected: quickFilter ? '' : null, text: 'Bộ lọc' }),
+    FILTERS.map(f => el('option', { value: f[0], selected: !quickFilter && UI.filter === f[0] ? '' : null, text: f[1] })));
   search.addEventListener('input', () => { UI.q = search.value; UI.limit = 40; drawList(); });
   main.append(el('div', { class: 'search' }, svgi('search'), search),
-    el('div', { class: 'chips' }, FILTERS.map(f => el('button', { class: 'chip', type: 'button', 'aria-pressed': String(UI.filter === f[0]), text: f[1],
-      onclick: () => { UI.filter = f[0]; UI.limit = 40; render(); document.querySelector('.chips [aria-pressed="true"]').focus(); } }))), listHost);
+    el('div', { class: 'chips' }, FILTERS.slice(0, 2).map(f => el('button', { class: 'chip', type: 'button', 'aria-pressed': String(UI.filter === f[0]), text: f[1],
+      onclick: () => chooseFilter(f[0], '.chips [aria-pressed="true"]') })), filterSelect), listHost);
 
   const active = ['ACTIVE', 'OVERDUE', 'DELEG', 'DRAFT'].indexOf(UI.filter) >= 0;
   const base = DATA.items.filter(matchFilter).sort(active ? (a, b) => (a.d || 9e15) - (b.d || 9e15) : (a, b) => (b.c || 0) - (a.c || 0));
   function drawList() {
-    const q = UI.q.trim().toLowerCase();
-    const list = q ? base.filter(i => (i.t + ' ' + i.src + ' ' + (i.a || '')).toLowerCase().indexOf(q) >= 0) : base;
+    const q = fold(UI.q.trim());     // gõ không dấu vẫn tìm ra: 'bao cao' → 'Báo cáo'
+    const list = q ? base.filter(i => fold(i.t + ' ' + i.src + ' ' + (i.a || '')).indexOf(q) >= 0) : base;
     const shown = list.slice(0, UI.limit);
     listHost.replaceChildren(...[secH(list.length + ' việc'),
       list.length ? el('div', { class: 'sec' }, shown.map(i => item({
-        ref: isOpen(i) ? i.id : null, detailRef: i.id, tile: i.st === 'DONE' ? ['done', 'done'] : i.ty === 'EVENT' ? ['cal', 'event'] : ['task', 'task'],
-        title: i.t, sub: who(i) + [i.dl || 'Chưa có hạn', i.src].join(' · '), tail: badge(i), inlineTail: isPastEvent(i) })))
+        ref: isOpen(i) ? i.id : null, detailRef: i.id, tile: typeTile(i),
+        title: i.t, sub: who(i) + [i.dl || 'Chưa có hạn', i.src].join(' · '), tail: badge(i) })))
         : el('div', { class: 'sec' }, el('div', { class: 'empty', text: 'Không có việc phù hợp.' })),
-      list.length > shown.length ? el('button', { class: 'more', type: 'button', text: 'Xem thêm ' + (list.length - shown.length) + ' việc', onclick: () => { UI.limit += 40; drawList(); } }) : null].filter(Boolean));
+      list.length > shown.length ? el('button', { class: 'more', type: 'button', text: 'Xem thêm ' + (list.length - shown.length) + ' việc',
+        onclick: () => { UI.limit += 40; drawList(); } }) : null].filter(Boolean));
   }
   drawList();
 }
@@ -914,6 +952,7 @@ document.querySelector('[role="tablist"]').addEventListener('keydown', ev => {
 });
 document.getElementById('btnRefresh').appendChild(svgi('refresh'));
 document.getElementById('btnRefresh').addEventListener('click', () => refresh(false, true));
+/** Kéo xuống ở đầu trang để tải lại (giống iOS): chỉ nhận cử chỉ kéo xuống khi đang ở đỉnh trang, đủ xa mới tải. */
 function setupPullRefresh() {
   const status = document.getElementById('pullStatus');
   let start = null, pulling = false, distance = 0;
