@@ -112,7 +112,7 @@
   .tile.event { background: var(--event); } .tile.task { background: var(--task); } .tile.done { background: var(--good); }
   .tile.person { background: var(--person); } .tile.draft { background: var(--hint); } .tile.note { background: #5e5ce6; } .tile.crit { background: var(--critical); }
 
-  /* Dòng lịch/việc trong "Tuần này": giờ bên trái · vạch màu · nội dung · nút xong */
+  /* Dòng lịch/việc trong "Tuần này": tiêu đề rộng hết hàng, thao tác bên dưới. */
   .row { padding: 12px 6px 12px 12px; gap: 4px; align-items: stretch; min-height: 76px; }
   .row .bar { width: 3px; margin-right: 6px; border-radius: 3px; flex: none; background: var(--event); }
   .row.task .bar { background: var(--task); }
@@ -120,7 +120,9 @@
   .row .main { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
   .row .ttl { font-size: 14px; line-height: 1.4; font-weight: 500; letter-spacing: -.01em; overflow-wrap: anywhere; }
   .detail-btn { align-self: flex-start; min-height: 44px; border: 0; background: transparent; padding: 6px 0 0; text-align: left; font-size: 12px; font-weight: 600; color: var(--accent); cursor: pointer; }
-  .row .meta { display: flex; flex-wrap: wrap; gap: 4px 7px; align-items: center; margin-top: 6px; font-size: 12px; line-height: 1.35; color: var(--sub); }
+  .row .row-actions { display: flex; align-items: flex-start; gap: 4px; margin-top: 6px; }
+  .row .meta { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; gap: 4px 7px; align-items: center; font-size: 12px; line-height: 1.35; color: var(--sub); }
+  .row .meta > span { min-width: 0; overflow-wrap: anywhere; }
   .row .meta .detail-btn { min-height: 44px; padding: 0; align-self: center; }
   .row .meta .meeting { color: var(--accent); font-weight: 600; }
   .row .meta > span + span:not(.confirm-hint)::before { content: "·"; margin-right: 8px; color: var(--hint); }
@@ -128,7 +130,6 @@
   .who { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 7px 0 5px; border-radius: 11px; font-size: 12.5px; font-weight: 600;
     background: color-mix(in srgb, var(--person) 14%, transparent); color: var(--person); max-width: 100%; }
   .who .i { font-size: 13px; }
-  .row .act { width: 44px; flex: none; display: grid; place-items: center; }
   .meta:empty { display: none; }
   .item .act { width: 44px; margin-right: -8px; display: grid; place-items: center; flex: none; }
   .row .act { margin-right: 0; }
@@ -138,6 +139,7 @@
   .today-empty strong { display: block; font-size: 14px; font-weight: 600; margin-bottom: 3px; }
   .today-empty p { margin: 0; font-size: 12px; line-height: 1.4; color: var(--sub); }
   .quiet { margin: 12px 18px 0; font-size: 13px; color: var(--hint); line-height: 1.45; }
+  .load-status { margin-top: 40px; text-align: center; }
 
   /* Vòng tròn đánh dấu xong — chạm 1 lần hỏi lại, chạm lần 2 xác nhận. Vùng chạm 44px. */
   .chk { width: 44px; height: 44px; border-radius: 50%; border: 0; background: transparent; padding: 0; cursor: pointer; display: grid; place-items: center; position: relative; color: transparent; }
@@ -237,7 +239,7 @@
     <div class="own" id="own" role="group" aria-label="Lọc theo người làm"></div>
     <div class="pull-status" id="pullStatus" role="status" hidden></div>
   </div>
-  <main id="main"></main>
+  <main id="main"><div class="quiet load-status" role="status">Đang tải bảng việc…</div></main>
 </div>
 <div class="tip" id="tip" role="tooltip" hidden></div>
 <dialog class="detail-sheet" id="detailSheet" aria-labelledby="detailTitle">
@@ -427,6 +429,7 @@ const hasGAS = () => typeof google !== 'undefined' && google.script && google.sc
 const FETCH_MODE = typeof API !== 'undefined' && !!API;
 const canCall = () => FETCH_MODE || hasGAS();
 let LOADERR = '';
+let dataBusy = false;
 function saveCache(d) { if (FETCH_MODE) try { localStorage.setItem('dash_cache_v1', JSON.stringify(d)); } catch (e) { /* bỏ qua */ } }
 function loadCache() { try { return JSON.parse(localStorage.getItem('dash_cache_v1') || 'null'); } catch (e) { return null; } }
 /** op 'data' = lấy số liệu; 'done' = hoàn thành; 'details' = xem nội dung việc. */
@@ -436,7 +439,7 @@ function server(op, ref, force) {
       (ref ? '&ref=' + encodeURIComponent(ref) : '') + (force ? '&fresh=1' : '') + '&_=' + Date.now();
     return fetch(u, { redirect: 'follow' }).then(r => r.json()).then(j => {
       if (!j || !j.ok) throw new Error((j && j.error) || 'Lỗi máy chủ');
-      if (op !== 'details') saveCache(j.data); return j.data;
+      return j.data;
     });
   }
   return new Promise((res, rej) => {
@@ -448,16 +451,25 @@ function server(op, ref, force) {
 }
 const errMsg = e => (e && e.message) ? e.message : String(e);
 function setBusy(b) {
+  dataBusy = b;
   document.getElementById('main').setAttribute('aria-busy', String(b));
   const button = document.getElementById('btnRefresh');
   button.disabled = b;
   button.setAttribute('aria-label', b ? 'Đang cập nhật' : 'Làm mới');
 }
+function loadDashboardData(force) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('Tải dữ liệu quá lâu. Vui lòng thử lại.')), 20000);
+    Promise.resolve().then(() => server('data', null, force)).then(resolve, reject)
+      .finally(() => clearTimeout(timer));
+  });
+}
 function refresh(silent, force) {
+  if (dataBusy) return;
   if (!canCall()) return toast('Bản xem thử');
   setBusy(true);
-  return server('data', null, force)
-    .then(d => { DATA = d; LOADERR = ''; setBusy(false); render(); if (!silent) toast('Đã cập nhật'); })
+  return loadDashboardData(force)
+    .then(d => { DATA = d; saveCache(d); LOADERR = ''; setBusy(false); render(); if (!silent) toast('Đã cập nhật'); })
     .catch(e => { setBusy(false); if (!DATA) { LOADERR = errMsg(e); render(); } else if (!silent) toast('Lỗi: ' + errMsg(e)); });
 }
 /** Vòng tròn ✓: chạm 1 lần → chuyển xanh "Xong?", chạm lần 2 trong 3 giây → đánh dấu xong. */
@@ -467,6 +479,7 @@ function check(ref, hintHost) {
   const disarm = () => { armed = null; b.classList.remove('armed'); if (hint) { hint.remove(); hint = null; } };
   b.addEventListener('click', ev => {
     ev.stopPropagation();
+    if (dataBusy) return toast('Đang cập nhật, vui lòng thử lại.');
     if (!armed) {
       b.classList.add('armed');
       if (hintHost) { hint = el('span', { class: 'confirm-hint', text: ' · chạm lần nữa để xong' }); hintHost.appendChild(hint); }
@@ -477,7 +490,7 @@ function check(ref, hintHost) {
     if (!canCall()) { disarm(); return toast('Bản xem thử'); }
     b.disabled = true; setBusy(true);
     server('done', ref)
-      .then(d => { DATA = d; setBusy(false); render(); toast('✅ Đã xong'); })
+      .then(d => { DATA = d; saveCache(d); setBusy(false); render(); toast('✅ Đã xong'); })
       .catch(e => { setBusy(false); b.disabled = false; disarm(); toast('Lỗi: ' + errMsg(e)); });
   });
   return b;
@@ -546,8 +559,8 @@ function weekRow(r, over, dayLabel) {
       (!over && note && !/^trong ngày$/i.test(note) ? el('span', { text: note }) : null));
   const row = el('div', { class: 'item row ' + (over ? 'over ' : '') + (isEv ? 'event' : 'task') },
     el('i', { class: 'bar' }),
-    el('div', { class: 'main' }, el('div', { class: 'ttl', text: w.title }), meta),
-    r.ref ? el('div', { class: 'act' }, check(r.ref, meta)) : null);
+    el('div', { class: 'main' }, el('div', { class: 'ttl', text: w.title }),
+      el('div', { class: 'row-actions' }, meta, r.ref ? el('div', { class: 'act' }, check(r.ref, meta)) : null)));
   return row;
 }
 
@@ -864,8 +877,9 @@ function render() {
   drawOwn();
   if (!DATA) {                                              // chưa có số liệu (trang riêng, lần mở đầu)
     setSubtitle('');
-    main.replaceChildren(el('div', { class: 'quiet', style: 'text-align:center;margin-top:40px' }, LOADERR ? ['⚠️ ' + LOADERR, el('div', { style: 'margin-top:14px' },
-      el('button', { class: 'chip', type: 'button', text: 'Thử lại', onclick: () => { LOADERR = ''; render(); refresh(true); } }))] : (canCall() ? 'Đang tải…' : 'Hãy mở bảng việc từ nút 📊 trong bot Telegram.')));
+    main.replaceChildren(el('div', { class: 'quiet load-status' }, el('div', { role: 'status', text: LOADERR ? '⚠️ ' + LOADERR :
+      (canCall() ? 'Đang tải bảng việc…' : 'Hãy mở bảng việc từ nút 📊 trong bot Telegram.') }), LOADERR ?
+      el('div', { style: 'margin-top:14px' }, el('button', { class: 'chip', type: 'button', text: 'Thử lại', onclick: () => { LOADERR = ''; render(); refresh(true); } })) : null));
     return;
   }
   const dd = dayDate(dayIdx(DATA.now));
@@ -922,12 +936,10 @@ setupPullRefresh();
 let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (UI.tab === 'stats') render(); }, 150); });
 setInterval(() => { if (document.visibilityState === 'visible') refresh(true); }, 5 * 60000);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && FETCH_MODE) refresh(true); });
-ensureContrast();
-render();
-if (FETCH_MODE || !DATA) refresh(true);   // trang Apps Script: chưa có số liệu nhúng → tải ngay sau khi hiện khung
   const initTelegram = () => { try {
     const w = window.Telegram && window.Telegram.WebApp;
     if (!w) return;
+    w.ready();
     applyThemeParams(w.themeParams);
     const syncInsets = () => {
       for (const [prefix, insets] of [['safe-area', w.safeAreaInset], ['content-safe-area', w.contentSafeAreaInset]]) {
@@ -938,12 +950,15 @@ if (FETCH_MODE || !DATA) refresh(true);   // trang Apps Script: chưa có số l
     syncInsets();
     w.onEvent('safeAreaChanged', syncInsets); w.onEvent('contentSafeAreaChanged', syncInsets);
     if (typeof w.disableVerticalSwipes === 'function' && typeof w.isVersionAtLeast === 'function' && w.isVersionAtLeast('7.7')) w.disableVerticalSwipes();
-    w.ready(); w.expand(); w.onEvent('themeChanged', () => applyThemeParams(w.themeParams));
+    w.expand(); w.onEvent('themeChanged', () => applyThemeParams(w.themeParams));
   } catch (e) { console.error('Telegram initialization failed', e); } };
   if (window.Telegram && window.Telegram.WebApp) initTelegram();
   else document.getElementById('tgWebAppScript').addEventListener('load', initTelegram, { once: true });
 if (hasGAS() && google.script.url) google.script.url.getLocation(loc => applyTelegramTheme(loc.hash));
 else applyTelegramTheme(location.hash);                       // trang riêng / bản xem thử
+ensureContrast();
+render();
+if (canCall()) refresh(true);
 </script>
 </body>
 </html>
